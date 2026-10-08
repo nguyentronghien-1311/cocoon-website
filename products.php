@@ -817,7 +817,7 @@ unset($item);
                 <a href="#about">Cocoon</a>
             </nav>
 
-            <a class="logo" href="#top" id="top">
+            <a class="logo" href="index.php" id="top">
                 <span class="brand">the cocoon</span>
                 <span class="sub">VIETNAM</span>
             </a>
@@ -871,7 +871,7 @@ unset($item);
     <main>
         <section class="page-head container">
             <nav class="crumb" aria-label="Breadcrumb">
-                <a href="#top">Trang chủ</a> / <span>Sản phẩm</span>
+                <a href="index.php">Trang chủ</a> / <span>Sản phẩm</span>
             </nav>
             <h1>SẢN PHẨM</h1>
             <p>Khám phá các sản phẩm chăm sóc da, tóc và cơ thể thuần chay từ những nguyên liệu thiên nhiên Việt Nam.</p>
