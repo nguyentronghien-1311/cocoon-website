@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             $pdo = new PDO(
-                'mysql:host=localhost;dbname=cocoon;charset=utf8mb4',
+				'mysql:host=localhost;dbname=cocoon_db;charset=utf8mb4',
                 'root',
                 '',
                 [

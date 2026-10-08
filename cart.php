@@ -1,3 +1,9 @@
+<?php
+session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -20,12 +26,15 @@
         }
         /* Phần đầu trang */
         header {
+            position: relative;
+            z-index: 10;
             background: white;
             border-bottom: 2px solid #e0e0e0;
             padding: 15px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
         }
         .logo {
             font-size: 24px;
@@ -34,6 +43,36 @@
             color: var(--primary);
             text-decoration: none;
         }
+        .site-menu { position: relative; margin-left: auto; }
+        .menu-toggle {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            align-content: center;
+            justify-items: center;
+            gap: 5px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+        .menu-toggle span { width: 20px; height: 2px; background: var(--primary); }
+        .menu-panel {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 190px;
+            padding: 6px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            box-shadow: 0 8px 22px rgba(0,0,0,.12);
+        }
+        .menu-panel[hidden] { display: none; }
+        .menu-panel a { display: block; padding: 10px 12px; color: var(--text); text-decoration: none; }
+        .menu-panel a:hover { background: var(--bg); color: var(--primary); }
+        .menu-panel form { margin: 0; }
+        .menu-panel button { width: 100%; padding: 10px 12px; border: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+        .menu-panel button:hover { background: var(--bg); color: var(--primary); }
         .container {
             max-width: 950px;
             margin: 35px auto;
@@ -161,13 +200,35 @@
             text-decoration: none;
             font-size: 14px;
         }
+        @media (max-width: 600px) {
+            header { padding: 14px 18px; }
+            .tagline { display: none; }
+        }
     </style>
 </head>
 <body>
 
     <header>
         <a href="index.php" class="logo">COCOON</a>
-        <span>Mỹ phẩm thuần chay 100% Việt Nam</span>
+        <span class="tagline">Mỹ phẩm thuần chay 100% Việt Nam</span>
+        <div class="site-menu">
+            <button class="menu-toggle" id="menuToggle" type="button" aria-label="Mở menu" aria-controls="menuPanel" aria-expanded="false"><span></span><span></span><span></span></button>
+            <nav class="menu-panel" id="menuPanel" aria-label="Menu chính" hidden>
+                <a href="index.php">Trang chủ</a>
+                <a href="products.php">Sản phẩm</a>
+                <a href="cart.php">Giỏ hàng</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="addresses.php">Địa chỉ giao hàng</a>
+                    <form action="logout.php" method="post">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+                        <button type="submit">Đăng xuất</button>
+                    </form>
+                <?php else: ?>
+                    <a href="login.php">Đăng nhập</a>
+                    <a href="register.php">Đăng ký</a>
+                <?php endif; ?>
+            </nav>
+        </div>
     </header>
 
     <div class="container">
@@ -175,7 +236,7 @@
 
         <div id="cart-empty" class="empty-cart" hidden>
             <p>Giỏ hàng của bạn đang trống.</p>
-            <a href="product.php" class="btn-checkout secondary">Tiếp tục mua sắm</a>
+            <a href="products.php" class="btn-checkout secondary">Tiếp tục mua sắm</a>
         </div>
 
         <table id="cart-table">
@@ -188,41 +249,10 @@
                     <th>Hành động</th>
                 </tr>
             </thead>
-            <tbody id="cart-items">
-                <tr class="cart-item" data-price="125000">
-                    <td>
-                        <div class="product-info">
-                            <img class="product-img" src="https://image.hsv-tech.io/600x600/bbx/common/5d4bf9c3-1fb3-488d-a417-062e2ffdb20c.webp" alt="Tẩy da chết">
-                            <div>
-                                <div class="product-name">Cà phê Đắk Lắk làm sạch da chết cơ thể</div>
-                                <small style="color: #777;">Dung tích: 200ml</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="unit-price">125.000 đ</td>
-                    <td><input type="number" class="qty-input" value="1" min="1"></td>
-                    <td class="line-total"><strong>125.000 đ</strong></td>
-                    <td><button class="btn-remove" type="button">Xóa</button></td>
-                </tr>
-                <tr class="cart-item" data-price="145000">
-                    <td>
-                        <div class="product-info">
-                            <img class="product-img" src="https://image.hsv-tech.io/600x600/bbx/common/a60e0a54-7f1b-4395-8123-5e921d743a41.webp" alt="Nước dưỡng tóc">
-                            <div>
-                                <div class="product-name">Nước dưỡng tóc tinh dầu bưởi Cocoon</div>
-                                <small style="color: #777;">Dung tích: 140ml</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="unit-price">145.000 đ</td>
-                    <td><input type="number" class="qty-input" value="2" min="1"></td>
-                    <td class="line-total"><strong>290.000 đ</strong></td>
-                    <td><button class="btn-remove" type="button">Xóa</button></td>
-                </tr>
-            </tbody>
+            <tbody id="cart-items"></tbody>
         </table>
 
-        <a href="product.php" class="continue-shopping">← Tiếp tục chọn mua sản phẩm khác</a>
+        <a href="products.php" class="continue-shopping">← Tiếp tục chọn mua sản phẩm khác</a>
 
         <div class="cart-summary">
             <div class="summary-box">
@@ -249,6 +279,26 @@
         const subtotalEl = document.getElementById('subtotal');
         const grandTotalEl = document.getElementById('grand-total');
         const checkoutBtn = document.getElementById('checkout-btn');
+        const cartItemsEl = document.getElementById('cart-items');
+        const menuToggle = document.getElementById('menuToggle');
+        const menuPanel = document.getElementById('menuPanel');
+
+        function closeMenu() {
+            menuPanel.hidden = true;
+            menuToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        menuToggle.addEventListener('click', () => {
+            const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuPanel.hidden = isOpen;
+            menuToggle.setAttribute('aria-expanded', String(!isOpen));
+        });
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.site-menu')) closeMenu();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeMenu();
+        });
 
         const formatCurrency = (value) => {
             return new Intl.NumberFormat('vi-VN', {
@@ -258,56 +308,132 @@
             }).format(value).replace('₫', 'đ');
         };
 
-        function updateCartTotals() {
-            const rows = document.querySelectorAll('.cart-item');
-            let subtotal = 0;
+        function getCartItems() {
+            try {
+                const savedItems = JSON.parse(localStorage.getItem('cocoon_cart_items') || '[]');
+                if (!Array.isArray(savedItems)) return [];
+                return savedItems.map((item) => ({
+                    id: Number(item.id),
+                    name: String(item.name || ''),
+                    category: String(item.category || ''),
+                    price: Number(item.price),
+                    image: String(item.image || ''),
+                    quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
+                })).filter((item) => Number.isInteger(item.id) && item.id > 0 && Number.isFinite(item.price) && item.price >= 0 && item.name !== '');
+            } catch {
+                return [];
+            }
+        }
 
-            rows.forEach(row => {
-                const qtyInput = row.querySelector('.qty-input');
-                const price = Number(row.dataset.price) || 0;
-                const qty = Math.max(1, Number(qtyInput.value) || 1);
-                qtyInput.value = qty;
+        function saveCartItems(items) {
+            localStorage.setItem('cocoon_cart_items', JSON.stringify(items));
+            const count = items.reduce((total, item) => total + item.quantity, 0);
+            localStorage.setItem('cocoon_cart_count', String(count));
+        }
 
-                const lineTotal = price * qty;
-                row.querySelector('.line-total').innerHTML = `<strong>${formatCurrency(lineTotal)}</strong>`;
-                subtotal += lineTotal;
-            });
-
+        function updateCartTotals(items) {
+            const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
             subtotalEl.textContent = formatCurrency(subtotal);
             grandTotalEl.textContent = formatCurrency(subtotal);
 
-            const isEmpty = rows.length === 0;
+            const isEmpty = items.length === 0;
             cartTable.style.display = isEmpty ? 'none' : '';
             cartEmpty.hidden = !isEmpty;
 
             if (isEmpty) {
                 checkoutBtn.setAttribute('href', '#');
+                checkoutBtn.setAttribute('aria-disabled', 'true');
                 checkoutBtn.style.pointerEvents = 'none';
                 checkoutBtn.style.opacity = '0.5';
             } else {
                 checkoutBtn.setAttribute('href', 'checkout.php');
+                checkoutBtn.removeAttribute('aria-disabled');
                 checkoutBtn.style.pointerEvents = 'auto';
                 checkoutBtn.style.opacity = '1';
             }
         }
 
-        document.addEventListener('input', function (event) {
+        function renderCart() {
+            const items = getCartItems();
+            cartItemsEl.replaceChildren();
+
+            items.forEach((item) => {
+                const row = document.createElement('tr');
+                row.className = 'cart-item';
+
+                const productCell = document.createElement('td');
+                const productInfo = document.createElement('div');
+                productInfo.className = 'product-info';
+                const image = document.createElement('img');
+                image.className = 'product-img';
+                image.alt = item.name;
+                if (item.image.startsWith('data:image/svg+xml')) image.src = item.image;
+                const details = document.createElement('div');
+                const name = document.createElement('div');
+                name.className = 'product-name';
+                name.textContent = item.name;
+                const category = document.createElement('small');
+                category.style.color = '#777';
+                category.textContent = item.category;
+                details.append(name, category);
+                productInfo.append(image, details);
+                productCell.append(productInfo);
+
+                const priceCell = document.createElement('td');
+                priceCell.textContent = formatCurrency(item.price);
+                const quantityCell = document.createElement('td');
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'number';
+                quantityInput.className = 'qty-input';
+                quantityInput.min = '1';
+                quantityInput.value = String(item.quantity);
+                quantityInput.dataset.productId = String(item.id);
+                quantityInput.setAttribute('aria-label', `Số lượng ${item.name}`);
+                quantityCell.append(quantityInput);
+
+                const totalCell = document.createElement('td');
+                totalCell.className = 'line-total';
+                totalCell.textContent = formatCurrency(item.price * item.quantity);
+                const actionCell = document.createElement('td');
+                const removeButton = document.createElement('button');
+                removeButton.className = 'btn-remove';
+                removeButton.type = 'button';
+                removeButton.dataset.productId = String(item.id);
+                removeButton.textContent = 'Xóa';
+                actionCell.append(removeButton);
+                row.append(productCell, priceCell, quantityCell, totalCell, actionCell);
+                cartItemsEl.append(row);
+            });
+
+            saveCartItems(items);
+            updateCartTotals(items);
+        }
+
+        document.addEventListener('change', (event) => {
             if (event.target.matches('.qty-input')) {
-                updateCartTotals();
+                const items = getCartItems();
+                const item = items.find((cartItem) => cartItem.id === Number(event.target.dataset.productId));
+                if (!item) return;
+                item.quantity = Math.max(1, Math.floor(Number(event.target.value) || 1));
+                saveCartItems(items);
+                renderCart();
             }
         });
 
         document.addEventListener('click', function (event) {
-            if (event.target.matches('.btn-remove')) {
-                const row = event.target.closest('.cart-item');
-                if (row) {
-                    row.remove();
-                    updateCartTotals();
-                }
+            const removeButton = event.target.closest('.btn-remove');
+            if (removeButton) {
+                const items = getCartItems().filter((item) => item.id !== Number(removeButton.dataset.productId));
+                saveCartItems(items);
+                renderCart();
             }
         });
 
-        updateCartTotals();
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'cocoon_cart_items') renderCart();
+        });
+
+        renderCart();
     </script>
 
 </body>

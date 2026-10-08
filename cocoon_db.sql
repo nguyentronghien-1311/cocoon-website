@@ -149,6 +149,7 @@ CREATE TABLE `users` (
   `full_name` varchar(100) NOT NULL,
   `email` varchar(150) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `role` varchar(10) NOT NULL DEFAULT 'customer',
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
@@ -201,6 +202,26 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`),
   ADD UNIQUE KEY `email` (`email`);
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `user_addresses`
+--
+
+CREATE TABLE `user_addresses` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `label` varchar(80) NOT NULL DEFAULT 'Nhà riêng',
+  `recipient_name` varchar(100) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_user_addresses_user` (`user_id`),
+  CONSTRAINT `fk_user_addresses_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- AUTO_INCREMENT cho các bảng đã đổ
