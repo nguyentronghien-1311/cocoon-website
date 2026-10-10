@@ -3,6 +3,9 @@ session_start();
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+require __DIR__ . '/connect.php';
+require __DIR__ . '/product_catalog.php';
+$featuredProducts = get_catalog_products($conn, 0, '', true, 4);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -10,6 +13,9 @@ if (empty($_SESSION['csrf_token'])) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cocoon Vietnam - Mỹ phẩm 100% thuần chay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
 <style>
 /* ===== Design tokens (màu rút ra từ ảnh) ===== */
@@ -26,9 +32,12 @@ button{font:inherit;cursor:pointer;border:0}
 
 /* ===== Header ===== */
 .header{position:sticky;top:0;z-index:50;background:#fff;padding:14px 0 12px;box-shadow:0 1px 0 #eee}
-.header .row{display:flex;align-items:center;justify-content:space-between}
-.logo{font-weight:800;font-size:28px;letter-spacing:1.5px;color:var(--primary)}
-.actions{display:flex;align-items:center;gap:18px;font-size:14px;font-weight:600}
+.header .row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.logo{grid-column:2;grid-row:1;display:flex;flex-direction:column;align-items:center;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:500;color:#3E3228}
+.logo-the{margin-bottom:-4px;font-size:13px;line-height:1}
+.logo-name{font-size:28px;line-height:.9}
+.logo-country{margin-top:4px;color:#8D6E63;font-family:Barlow,system-ui,sans-serif;font-size:8px;font-style:normal;letter-spacing:.38em}
+.actions{grid-column:3;grid-row:1;justify-self:end;display:flex;align-items:center;gap:18px;font-size:14px;font-weight:600}
 .actions a,.actions button{transition:.2s}
 .actions a:hover{color:var(--primary)}
 .cart{background:#fffaf0;border:1px solid var(--primary);color:var(--primary);padding:8px 14px;border-radius:6px;font-weight:600}
@@ -196,7 +205,11 @@ button{font:inherit;cursor:pointer;border:0}
 <header class="header">
   <div class="wrap">
     <div class="row">
-      <a href="index.php" class="logo">COCOON</a>
+      <a href="index.php" class="logo" aria-label="the cocoon Vietnam - Trang chủ">
+        <span class="logo-the">the</span>
+        <span class="logo-name">cocoon</span>
+        <span class="logo-country">VIETNAM</span>
+      </a>
       <nav class="actions">
         <a href="products.php" class="fav">Sản phẩm</a>
         <a href="cart.php" class="cart">Giỏ hàng <span class="badge" id="cartCount">0</span></a>
@@ -204,6 +217,7 @@ button{font:inherit;cursor:pointer;border:0}
           <button class="burger" id="menuToggle" type="button" aria-label="Mở menu" aria-controls="menuPanel" aria-expanded="false"><i></i><i></i><i></i></button>
           <nav class="menu-panel" id="menuPanel" aria-label="Menu chính" hidden>
             <a href="products.php">Tất cả sản phẩm</a>
+            <a href="saved-coupons.php">Mã giảm giá đã lưu</a>
             <?php if (isset($_SESSION['user_id'])): ?>
               <a href="addresses.php">Địa chỉ giao hàng</a>
               <form action="logout.php" method="post">
@@ -292,7 +306,25 @@ button{font:inherit;cursor:pointer;border:0}
       <div><small>THUẦN CHAY TỪ THIÊN NHIÊN</small><h2>COCOON BÁN CHẠY</h2></div>
       <a href="products.php" class="more">XEM THÊM →</a>
     </div>
-    <div class="grid" id="products"></div>
+    <div class="grid" id="products">
+      <?php foreach ($featuredProducts as $product): ?>
+        <?php $productUrl = 'products.php?search=' . rawurlencode($product['name']); ?>
+        <article class="product">
+          <a href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>" aria-label="Xem <?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?>">
+            <div class="pic">
+              <img src="<?= htmlspecialchars($product['image'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?>" loading="lazy">
+            </div>
+          </a>
+          <div class="brand">the cocoon</div>
+          <h3><?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?></h3>
+          <div class="cur"><?= htmlspecialchars($product['price_text'], ENT_QUOTES, 'UTF-8') ?></div>
+          <div class="btns">
+            <a class="q" href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>">Xem sản phẩm</a>
+            <a class="b" href="<?= htmlspecialchars($productUrl, ENT_QUOTES, 'UTF-8') ?>">Mua ngay</a>
+          </div>
+        </article>
+      <?php endforeach; ?>
+    </div>
   </div>
 </section>
 
@@ -342,19 +374,12 @@ button{font:inherit;cursor:pointer;border:0}
 </aside>
 
 <script>
-/* ===== Dữ liệu mẫu ===== */
+/* ===== Dữ liệu mã giảm giá ===== */
 const coupons=[
   {code:'CC_15KDON149K',big:'15k',min:'149k',txt:'Giảm 15,000 ₫ cho đơn hàng từ 149,000 ₫'},
   {code:'CC_30KDON259K',big:'30k',min:'259k',txt:'Giảm 30,000 ₫ khi mua đơn hàng tối thiểu 259,000 ₫'},
   {code:'CC_50KDON359K',big:'50k',min:'359k',txt:'Giảm 50,000 ₫ khi mua đơn hàng tối thiểu 359,000 ₫'}
 ];
-const products=[
-  {off:17,tag:'189K',name:'Dầu gội bồ kết 500ml',now:'189,000₫',old:'229,000₫',img:'images/dầu gội bồ kết Cocoon sale.jpg'},
-  {off:14,tag:'299K',name:'Nước tẩy trang bí đao 500ml',now:'299,000₫',old:'349,000₫',img:'photo-1556228720-195a672e8a03'},
-  {off:15,tag:'339K',name:'Mặt nạ nghệ Hưng Yên 100ml',now:'339,000₫',old:'399,000₫',img:'photo-1620916566398-39f1143ab7be'},
-  {off:16,tag:'133K',name:'Cà phê Đắk Lắk làm sạch da chết cơ thể 200ml',now:'133,000₫',old:'159,000₫',img:'photo-1571781926291-c477ebfd024b'}
-];
-
 /* ===== Render coupon ===== */
 document.getElementById('coupons').innerHTML=coupons.map(c=>`
   <div class="coupon"><div class="l">
@@ -363,24 +388,40 @@ document.getElementById('coupons').innerHTML=coupons.map(c=>`
     <p>${c.txt}</p>
     <div class="foot"><a href="#">Điều kiện áp dụng</a><button class="copy" data-code="${c.code}">Sao chép mã</button></div>
   </div><div class="r">COUPON</div></div>`).join('');
-document.querySelectorAll('.copy[data-code]').forEach(b=>b.onclick=()=>{
-  navigator.clipboard?.writeText(b.dataset.code);b.textContent='Đã chép!';setTimeout(()=>b.textContent='Sao chép mã',1500);
-});
+const savedCouponsKey='cocoon_saved_coupons';
+function saveCoupon(coupon){
+  let saved=[];
+  const stored=localStorage.getItem(savedCouponsKey);
+  if(stored!==null){
+    saved=JSON.parse(stored);
+    if(!Array.isArray(saved)) throw new Error('Danh sách mã giảm giá đã lưu không hợp lệ.');
+  }
+  saved=saved.filter(item=>item&&item.code!==coupon.code);
+  saved.push(coupon);
+  localStorage.setItem(savedCouponsKey,JSON.stringify(saved));
+}
+document.querySelectorAll('.copy[data-code]').forEach(button=>button.addEventListener('click',async()=>{
+  const coupon=coupons.find(item=>item.code===button.dataset.code);
+  if(!coupon) return;
+  let saved=false;
+  try{
+    saveCoupon(coupon);
+    saved=true;
+  }catch(error){
+    console.error('Không thể lưu mã giảm giá.',error);
+    alert('Không thể lưu mã giảm giá trên thiết bị này.');
+  }
+  try{
+    if(!navigator.clipboard) throw new Error('Clipboard API không khả dụng.');
+    await navigator.clipboard.writeText(coupon.code);
+    button.textContent=saved?'Đã chép & lưu!':'Đã chép!';
+  }catch(error){
+    console.error('Không thể sao chép mã giảm giá.',error);
+    button.textContent=saved?'Đã lưu mã':'Không thể sao chép';
+  }
+  setTimeout(()=>button.textContent='Sao chép mã',1500);
+}));
 
-/* ===== Render sản phẩm ===== */
-document.getElementById('products').innerHTML=products.map(p=>`
-  <article class="product">
-    <div class="pic">
-      <span class="off">-${p.off}%</span><button class="heart" aria-label="Yêu thích">♡</button>
-      <img src="${p.img.includes('/')||p.img.includes('.')?p.img:'https://images.unsplash.com/'+p.img+'?w=500&q=70'}" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&q=70'">
-      <span class="bubble">${p.tag}</span>
-    </div>
-    <div class="brand">COCOON</div>
-    <h3>${p.name}</h3>
-    <div class="cur">${p.now}<s>${p.old}</s></div>
-    <div class="btns"><a class="q" href="products.php">Xem sản phẩm</a><a class="b" href="products.php">Mua ngay</a></div>
-  </article>`).join('');
-document.querySelectorAll('.heart').forEach(h=>h.onclick=()=>{h.classList.toggle('on');h.textContent=h.classList.contains('on')?'♥':'♡'});
 const cartCount=document.getElementById('cartCount');
 const savedCartCount=Number.parseInt(localStorage.getItem('cocoon_cart_count')||'0',10);
 cartCount.textContent=Number.isFinite(savedCartCount)&&savedCartCount>0?savedCartCount:0;

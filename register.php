@@ -115,6 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="theme-color" content="#ffffff">
 	<title>Đăng ký - Cocoon</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 	<style>
 		:root {
 			color-scheme: light;
@@ -141,15 +144,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		}
 		.register-shell { width: min(100%, 480px); }
 		.brand {
-			display: block;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
 			width: fit-content;
 			margin: 0 auto 24px;
-			color: var(--green);
-			font-size: 25px;
-			font-weight: 750;
-			letter-spacing: 3px;
+			color: #3E3228;
+			font-family: "Cormorant Garamond", Georgia, serif;
+			font-style: italic;
+			font-weight: 500;
 			text-decoration: none;
 		}
+		.brand-the { margin-bottom: -5px; font-size: 16px; line-height: 1; }
+		.brand-name { font-size: 34px; line-height: 0.9; }
+		.brand-country { margin-top: 5px; color: var(--brown); font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; letter-spacing: 0.38em; }
 		.register-card {
 			padding: 38px 42px 34px;
 			border: 1px solid #edf1ed;
@@ -221,7 +229,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 	<main class="register-shell">
-		<a class="brand" href="index.php" aria-label="Cocoon - về trang chủ">COCOON</a>
+		<a class="brand" href="index.php" aria-label="the cocoon Vietnam - về trang chủ">
+			<span class="brand-the">the</span>
+			<span class="brand-name">cocoon</span>
+			<span class="brand-country">VIETNAM</span>
+		</a>
 		<section class="register-card" aria-labelledby="register-title">
 			<p class="eyebrow">Mỹ phẩm thuần chay Việt Nam</p>
 			<h1 id="register-title">Tạo tài khoản</h1>

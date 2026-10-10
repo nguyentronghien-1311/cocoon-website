@@ -147,6 +147,9 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thanh Toán - Mỹ Phẩm Thuần Chay Cocoon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2E7D32;    /* Màu xanh lá đậm Cocoon */
@@ -167,19 +170,27 @@ try {
             background: white;
             border-bottom: 2px solid #e0e0e0;
             padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
             gap: 20px;
         }
         .logo {
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            color: var(--primary);
+            grid-column: 2;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: 500;
+            color: #3E3228;
             text-decoration: none;
         }
-        .site-menu { position: relative; margin-left: auto; }
+        .logo-the, .logo-name { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; }
+        .logo-the { margin-bottom: -4px; font-size: 13px; line-height: 1; }
+        .logo-name { font-size: 28px; line-height: 0.9; }
+        .logo-country { margin-top: 4px; color: #8D6E63; font-size: 8px; letter-spacing: 0.38em; }
+        .site-menu { position: relative; grid-column: 3; grid-row: 1; justify-self: end; }
+        .tagline { grid-column: 1; grid-row: 1; }
         .menu-toggle {
             width: 42px;
             height: 42px;
@@ -352,7 +363,11 @@ try {
 <body>
 
     <header>
-        <a href="index.php" class="logo">COCOON</a>
+        <a href="index.php" class="logo" aria-label="the cocoon Vietnam - Trang chủ">
+            <span class="logo-the">the</span>
+            <span class="logo-name">cocoon</span>
+            <span class="logo-country">VIETNAM</span>
+        </a>
         <span class="tagline">Mỹ phẩm thuần chay 100% Việt Nam</span>
         <div class="site-menu">
             <button class="menu-toggle" id="menuToggle" type="button" aria-label="Mở menu" aria-controls="menuPanel" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -360,6 +375,7 @@ try {
                 <a href="index.php">Trang chủ</a>
                 <a href="products.php">Sản phẩm</a>
                 <a href="cart.php">Giỏ hàng</a>
+                <a href="saved-coupons.php">Mã giảm giá đã lưu</a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="addresses.php">Địa chỉ giao hàng</a>
                     <form action="logout.php" method="post">
