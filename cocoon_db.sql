@@ -123,19 +123,19 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `price`, `image`, `description`, `category_id`, `ingredients`, `usage_guide`, `volume`, `stock`, `is_featured`, `created_at`) VALUES
-(1, 'Nước bí đao cân bằng da', 255000, 'bi-dao-toner.jpg', 'Toner bí đao giúp làm sạch sâu, cân bằng độ pH, se khít lỗ chân lông và giảm dầu thừa. Phù hợp da dầu, da mụn.', 1, 'Chiết xuất bí đao, rau má, tràm trà, niacinamide (vitamin B3)', 'Sau bước rửa mặt, cho một lượng vừa đủ ra bông tẩy trang và lau nhẹ toàn mặt, dùng sáng và tối.', '310ml', 120, 1, '2026-10-07 02:09:34'),
-(2, 'Gel bí đao rửa mặt', 145000, 'bi-dao-gel.jpg', 'Sữa rửa mặt dạng gel dịu nhẹ, làm sạch bụi bẩn và dầu thừa mà không làm khô căng da, hỗ trợ giảm mụn.', 1, 'Chiết xuất bí đao, rau má, tràm trà, chất làm sạch dịu nhẹ', 'Làm ướt mặt, lấy một lượng gel vừa đủ tạo bọt, massage nhẹ 30-60 giây rồi rửa sạch với nước.', '140ml', 150, 0, '2026-10-07 02:09:34'),
-(3, 'Tinh chất bí đao N15', 275000, 'bi-dao-serum.jpg', 'Serum chứa 15% niacinamide giúp giảm mụn, mờ thâm, kiểm soát dầu và làm đều màu da.', 1, 'Niacinamide 15%, chiết xuất bí đao, rau má', 'Sau bước toner, lấy 2-3 giọt thoa đều lên mặt. Dùng buổi tối, ban ngày nhớ dùng kem chống nắng.', '70ml', 80, 0, '2026-10-07 02:09:34'),
-(4, 'Nước tẩy trang hoa hồng', 185000, 'hoa-hong-tay-trang.jpg', 'Nước tẩy trang dạng micellar làm sạch lớp trang điểm và kem chống nắng, cấp ẩm, dịu nhẹ cho da nhạy cảm.', 1, 'Nước cất hoa hồng, micellar, glycerin', 'Thấm nước tẩy trang ra bông, đặt lên da vài giây rồi lau nhẹ. Rửa lại bằng sữa rửa mặt.', '310ml', 100, 0, '2026-10-07 02:09:34'),
-(5, 'Mặt nạ nghệ Hưng Yên', 155000, 'nghe-mat-na.jpg', 'Mặt nạ nghệ giúp da sáng mịn, đều màu và hỗ trợ làm mờ vết thâm sau mụn.', 1, 'Nghệ Hưng Yên, cao đất sét, mật ong', 'Thoa một lớp mỏng lên da sạch, để 10-15 phút rồi rửa sạch. Dùng 2-3 lần mỗi tuần.', '100ml', 90, 0, '2026-10-07 02:09:34'),
-(6, 'Son dưỡng dầu dừa Bến Tre', 45000, 'dua-son-duong.jpg', 'Son dưỡng giúp môi mềm mịn, giảm khô nứt nẻ, an toàn cho cả môi nhạy cảm.', 1, 'Dầu dừa Bến Tre, bơ hạt mỡ, sáp thực vật', 'Thoa trực tiếp lên môi khi cần, đặc biệt trước khi ngủ.', '5g', 200, 0, '2026-10-07 02:09:34'),
-(7, 'Nước dưỡng tóc tinh dầu bưởi', 165000, 'buoi-xit-duong.jpg', 'Sản phẩm bán chạy nhất của Cocoon: giảm gãy rụng, kích thích mọc tóc, giúp tóc chắc khỏe và bóng mượt.', 2, 'Tinh dầu vỏ bưởi, vitamin B5, xylishine, baicapil', 'Xịt trực tiếp lên da đầu khi tóc khô hoặc hơi ẩm, massage nhẹ. Không cần gội lại. Dùng 2 lần/ngày.', '140ml', 200, 1, '2026-10-07 02:09:34'),
-(8, 'Dầu gội bưởi không sulfate', 195000, 'buoi-dau-goi.jpg', 'Dầu gội không chứa sulfate, làm sạch dịu nhẹ, giảm gãy rụng và giúp tóc bồng bềnh.', 2, 'Tinh dầu bưởi, vitamin B5, chất làm sạch dịu nhẹ không sulfate', 'Làm ướt tóc, lấy lượng vừa đủ massage da đầu 2-3 phút rồi xả sạch với nước.', '310ml', 120, 0, '2026-10-07 02:09:34'),
-(9, 'Dầu xả bưởi', 195000, 'buoi-dau-xa.jpg', 'Dầu xả giúp tóc mềm mượt, dễ chải, giảm xơ rối và gãy rụng.', 2, 'Tinh dầu bưởi, vitamin B5, dầu thực vật', 'Sau khi gội, thoa đều lên thân và ngọn tóc, để 2-3 phút rồi xả sạch.', '310ml', 110, 0, '2026-10-07 02:09:34'),
-(10, 'Cà phê Đắk Lắk làm sạch da chết cơ thể', 125000, 'cafe-body.jpg', 'Tẩy da chết toàn thân từ hạt cà phê Đắk Lắk xay nhuyễn, giúp da mịn màng, đều màu và tràn đầy năng lượng.', 3, 'Hạt cà phê Đắk Lắk, bơ ca cao, dầu dừa, vitamin E', 'Sau khi tắm, lấy lượng vừa đủ massage nhẹ nhàng lên da ướt 1-2 phút, tránh vùng mắt, rồi tắm sạch. Dùng 2-3 lần mỗi tuần.', '200ml', 180, 1, '2026-10-07 02:09:34'),
-(11, 'Bơ dưỡng thể cà phê Đắk Lắk', 245000, 'cafe-bo-duong.jpg', 'Bơ dưỡng thể giàu ẩm, giúp da mềm mịn, săn chắc và lưu hương cà phê dễ chịu.', 3, 'Cà phê Đắk Lắk, bơ ca cao, bơ hạt mỡ, caffeine', 'Sau khi tắm, thoa một lượng vừa đủ lên toàn thân và massage đến khi thấm.', '200ml', 90, 0, '2026-10-07 02:09:34'),
-(12, 'Cà phê Đắk Lắk làm sạch da chết môi', 75000, 'cafe-moi.jpg', 'Tẩy da chết môi giúp loại bỏ da khô bong tróc, giúp môi mềm và lên màu son đẹp hơn.', 3, 'Cà phê Đắk Lắk, đường, dầu dừa, bơ ca cao', 'Lấy một lượng nhỏ massage nhẹ lên môi 30 giây rồi lau sạch. Dùng 1-2 lần mỗi tuần.', '5g', 150, 0, '2026-10-07 02:09:34'),
-(13, 'Sữa tắm bí đao', 175000, 'bi-dao-sua-tam.jpg', 'Sữa tắm dịu nhẹ giúp làm sạch, hỗ trợ giảm mụn lưng và giữ ẩm cho da.', 3, 'Chiết xuất bí đao, rau má, tràm trà', 'Tạo bọt với bông tắm, thoa toàn thân rồi tắm sạch với nước.', '310ml', 100, 0, '2026-10-07 02:09:34');
+(1, 'Nước bí đao cân bằng da', 255000, 'Nuoc_bi_dao_can_bang_da.jpg', 'Toner bí đao giúp làm sạch sâu, cân bằng độ pH, se khít lỗ chân lông và giảm dầu thừa. Phù hợp da dầu, da mụn.', 1, 'Chiết xuất bí đao, rau má, tràm trà, niacinamide (vitamin B3)', 'Sau bước rửa mặt, cho một lượng vừa đủ ra bông tẩy trang và lau nhẹ toàn mặt, dùng sáng và tối.', '310ml', 120, 1, '2026-10-07 02:09:34'),
+(2, 'Gel bí đao rửa mặt', 145000, 'Gel_bi_dao_rua_mat.jpg', 'Sữa rửa mặt dạng gel dịu nhẹ, làm sạch bụi bẩn và dầu thừa mà không làm khô căng da, hỗ trợ giảm mụn.', 1, 'Chiết xuất bí đao, rau má, tràm trà, chất làm sạch dịu nhẹ', 'Làm ướt mặt, lấy một lượng gel vừa đủ tạo bọt, massage nhẹ 30-60 giây rồi rửa sạch với nước.', '140ml', 150, 0, '2026-10-07 02:09:34'),
+(3, 'Tinh chất bí đao N15', 275000, 'Tinh_chat_bi_dao.jpg', 'Serum chứa 15% niacinamide giúp giảm mụn, mờ thâm, kiểm soát dầu và làm đều màu da.', 1, 'Niacinamide 15%, chiết xuất bí đao, rau má', 'Sau bước toner, lấy 2-3 giọt thoa đều lên mặt. Dùng buổi tối, ban ngày nhớ dùng kem chống nắng.', '70ml', 80, 0, '2026-10-07 02:09:34'),
+(4, 'Nước tẩy trang hoa hồng', 185000, 'Nuoc_tay_trang_hoa_hong.jpg', 'Nước tẩy trang dạng micellar làm sạch lớp trang điểm và kem chống nắng, cấp ẩm, dịu nhẹ cho da nhạy cảm.', 1, 'Nước cất hoa hồng, micellar, glycerin', 'Thấm nước tẩy trang ra bông, đặt lên da vài giây rồi lau nhẹ. Rửa lại bằng sữa rửa mặt.', '310ml', 100, 0, '2026-10-07 02:09:34'),
+(5, 'Mặt nạ nghệ Hưng Yên', 155000, 'Mat_na_nghe.jpg', 'Mặt nạ nghệ giúp da sáng mịn, đều màu và hỗ trợ làm mờ vết thâm sau mụn.', 1, 'Nghệ Hưng Yên, cao đất sét, mật ong', 'Thoa một lớp mỏng lên da sạch, để 10-15 phút rồi rửa sạch. Dùng 2-3 lần mỗi tuần.', '100ml', 90, 0, '2026-10-07 02:09:34'),
+(6, 'Son dưỡng dầu dừa Bến Tre', 45000, 'Son_duong_dau_dua.jpg', 'Son dưỡng giúp môi mềm mịn, giảm khô nứt nẻ, an toàn cho cả môi nhạy cảm.', 1, 'Dầu dừa Bến Tre, bơ hạt mỡ, sáp thực vật', 'Thoa trực tiếp lên môi khi cần, đặc biệt trước khi ngủ.', '5g', 200, 0, '2026-10-07 02:09:34'),
+(7, 'Nước dưỡng tóc tinh dầu bưởi', 165000, 'Nuoc_duong_toc_tinh_dau_buoi.jpg', 'Sản phẩm bán chạy nhất của Cocoon: giảm gãy rụng, kích thích mọc tóc, giúp tóc chắc khỏe và bóng mượt.', 2, 'Tinh dầu vỏ bưởi, vitamin B5, xylishine, baicapil', 'Xịt trực tiếp lên da đầu khi tóc khô hoặc hơi ẩm, massage nhẹ. Không cần gội lại. Dùng 2 lần/ngày.', '140ml', 200, 1, '2026-10-07 02:09:34'),
+(8, 'Dầu gội bưởi không sulfate', 195000, 'Dau_goi_buoi.jpg', 'Dầu gội không chứa sulfate, làm sạch dịu nhẹ, giảm gãy rụng và giúp tóc bồng bềnh.', 2, 'Tinh dầu bưởi, vitamin B5, chất làm sạch dịu nhẹ không sulfate', 'Làm ướt tóc, lấy lượng vừa đủ massage da đầu 2-3 phút rồi xả sạch với nước.', '310ml', 120, 0, '2026-10-07 02:09:34'),
+(9, 'Dầu xả bưởi', 195000, 'Dau_xa_buoi.jpg', 'Dầu xả giúp tóc mềm mượt, dễ chải, giảm xơ rối và gãy rụng.', 2, 'Tinh dầu bưởi, vitamin B5, dầu thực vật', 'Sau khi gội, thoa đều lên thân và ngọn tóc, để 2-3 phút rồi xả sạch.', '310ml', 110, 0, '2026-10-07 02:09:34'),
+(10, 'Cà phê Đắk Lắk làm sạch da chết cơ thể', 125000, 'Ca_phe_dak_lak.jpg', 'Tẩy da chết toàn thân từ hạt cà phê Đắk Lắk xay nhuyễn, giúp da mịn màng, đều màu và tràn đầy năng lượng.', 3, 'Hạt cà phê Đắk Lắk, bơ ca cao, dầu dừa, vitamin E', 'Sau khi tắm, lấy lượng vừa đủ massage nhẹ nhàng lên da ướt 1-2 phút, tránh vùng mắt, rồi tắm sạch. Dùng 2-3 lần mỗi tuần.', '200ml', 180, 1, '2026-10-07 02:09:34'),
+(11, 'Bơ dưỡng thể cà phê Đắk Lắk', 245000, 'Bo_duong_the_cafe.png', 'Bơ dưỡng thể giàu ẩm, giúp da mềm mịn, săn chắc và lưu hương cà phê dễ chịu.', 3, 'Cà phê Đắk Lắk, bơ ca cao, bơ hạt mỡ, caffeine', 'Sau khi tắm, thoa một lượng vừa đủ lên toàn thân và massage đến khi thấm.', '200ml', 90, 0, '2026-10-07 02:09:34'),
+(12, 'Cà phê Đắk Lắk làm sạch da chết môi', 75000, 'Son_moi_cafe.jpg', 'Tẩy da chết môi giúp loại bỏ da khô bong tróc, giúp môi mềm và lên màu son đẹp hơn.', 3, 'Cà phê Đắk Lắk, đường, dầu dừa, bơ ca cao', 'Lấy một lượng nhỏ massage nhẹ lên môi 30 giây rồi lau sạch. Dùng 1-2 lần mỗi tuần.', '5g', 150, 0, '2026-10-07 02:09:34'),
+(13, 'Sữa tắm bí đao', 175000, 'Gel_tam_bi_dao.jpg', 'Sữa tắm dịu nhẹ giúp làm sạch, hỗ trợ giảm mụn lưng và giữ ẩm cho da.', 3, 'Chiết xuất bí đao, rau má, tràm trà', 'Tạo bọt với bông tắm, thoa toàn thân rồi tắm sạch với nước.', '310ml', 100, 0, '2026-10-07 02:09:34');
 
 -- --------------------------------------------------------
 
@@ -203,25 +203,6 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `username` (`username`),
   ADD UNIQUE KEY `email` (`email`);
 
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `user_addresses`
---
-
-CREATE TABLE `user_addresses` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `label` varchar(80) NOT NULL DEFAULT 'Nhà riêng',
-  `recipient_name` varchar(100) NOT NULL,
-  `phone` varchar(20) NOT NULL,
-  `address` varchar(255) NOT NULL,
-  `is_default` tinyint(1) NOT NULL DEFAULT 0,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `fk_user_addresses_user` (`user_id`),
-  CONSTRAINT `fk_user_addresses_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- AUTO_INCREMENT cho các bảng đã đổ
@@ -279,6 +260,28 @@ ALTER TABLE `order_items`
 --
 ALTER TABLE `products`
   ADD CONSTRAINT `fk_products_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON UPDATE CASCADE;
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `user_addresses`
+-- (đặt cuối file: phải tạo sau khi bảng users đã có AUTO_INCREMENT,
+--  nếu không MariaDB 10.4 của XAMPP báo lỗi khóa ngoại)
+--
+
+CREATE TABLE `user_addresses` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `label` varchar(80) NOT NULL DEFAULT 'Nhà riêng',
+  `recipient_name` varchar(100) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_user_addresses_user` (`user_id`),
+  CONSTRAINT `fk_user_addresses_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
