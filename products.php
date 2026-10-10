@@ -81,206 +81,50 @@ function product_illustration($product) {
     return svg_data_uri($svg);
 }
 
-$products = [
-    [
-        'id' => 1,
-        'name' => 'Nước tẩy trang hoa hồng 500ml',
-        'category' => 'Chăm sóc da',
-        'price' => 345000,
-        'badge' => 'BEST SELLER',
-        'short' => 'Hoa hồng',
-        'desc' => 'Làm sạch nhẹ nhàng, dưỡng ẩm và cân bằng da với chiết xuất hoa hồng thuần chay.',
-        'shape' => 'bottle',
-        'color1' => '#C48B9F',
-        'color2' => '#E8C4D0',
-    ],
-    [
-        'id' => 2,
-        'name' => 'Nước tẩy trang sen Hậu Giang 1000ml',
-        'category' => 'Chăm sóc da',
-        'price' => 565000,
-        'badge' => 'YÊU THÍCH',
-        'short' => 'Sen HG',
-        'desc' => 'Dung tích lớn, chiết xuất sen Hậu Giang giúp làm sạch sâu mà không gây khô da.',
-        'shape' => 'bottle',
-        'color1' => '#7E8B6F',
-        'color2' => '#C5CDB8',
-    ],
-    [
-        'id' => 3,
-        'name' => 'Nước tẩy trang bí đao 1000ml',
-        'category' => 'Chăm sóc da',
-        'price' => 535000,
-        'badge' => '',
-        'short' => 'Bí đao',
-        'desc' => 'Kiểm soát dầu nhờn, phù hợp da dầu mụn với tinh chất bí đao Việt Nam.',
-        'shape' => 'bottle',
-        'color1' => '#8FA87A',
-        'color2' => '#C9D9B8',
-    ],
-    [
-        'id' => 4,
-        'name' => 'Nước tẩy trang sen Hậu Giang 140ml',
-        'category' => 'Chăm sóc da',
-        'price' => 152000,
-        'badge' => 'NEW',
-        'short' => 'Sen mini',
-        'desc' => 'Phiên bản du lịch tiện lợi, giữ nguyên hiệu quả làm sạch từ sen Hậu Giang.',
-        'shape' => 'bottle',
-        'color1' => '#8A9A7A',
-        'color2' => '#D3DCC8',
-    ],
-    [
-        'id' => 5,
-        'name' => 'Tẩy da chết cà phê Đắk Lắk',
-        'category' => 'Chăm sóc cơ thể',
-        'price' => 125000,
-        'badge' => 'BEST SELLER',
-        'short' => 'Cà phê',
-        'desc' => 'Hạt cà phê Đắk Lắk đánh bay tế bào chết, giúp da mềm mịn và săn chắc.',
-        'shape' => 'jar',
-        'color1' => '#6D4C41',
-        'color2' => '#A1887F',
-    ],
-    [
-        'id' => 6,
-        'name' => 'Sữa rửa mặt bí đao',
-        'category' => 'Chăm sóc da',
-        'price' => 165000,
-        'badge' => '',
-        'short' => 'Bí đao',
-        'desc' => 'Làm sạch bã nhờn, se khít lỗ chân lông với công thức thuần chay từ bí đao.',
-        'shape' => 'tube',
-        'color1' => '#9BBB7A',
-        'color2' => '#C5D9A8',
-    ],
-    [
-        'id' => 7,
-        'name' => 'Gel rửa mặt hoa hồng',
-        'category' => 'Chăm sóc da',
-        'price' => 175000,
-        'badge' => 'NEW',
-        'short' => 'Hoa hồng',
-        'desc' => 'Gel dịu nhẹ, làm sạch và cấp ẩm cho làn da khô, nhạy cảm.',
-        'shape' => 'tube',
-        'color1' => '#D4A5B3',
-        'color2' => '#EBCFDB',
-    ],
-    [
-        'id' => 8,
-        'name' => 'Mặt nạ bí đao',
-        'category' => 'Chăm sóc da',
-        'price' => 185000,
-        'badge' => 'SALE',
-        'short' => 'Mặt nạ',
-        'desc' => 'Mặt nạ đất sét bí đao giúp hút dầu, làm dịu và làm sáng da.',
-        'shape' => 'jar',
-        'color1' => '#A8C090',
-        'color2' => '#D5E3C4',
-    ],
-    [
-        'id' => 9,
-        'name' => 'Dầu gội bưởi',
-        'category' => 'Chăm sóc tóc',
-        'price' => 195000,
-        'badge' => 'BEST SELLER',
-        'short' => 'Bưởi',
-        'desc' => 'Nuôi dưỡng chân tóc, giảm rụng nhờ tinh dầu vỏ bưởi Việt Nam.',
-        'shape' => 'bottle',
-        'color1' => '#E8B86D',
-        'color2' => '#F3D7A4',
-    ],
-    [
-        'id' => 10,
-        'name' => 'Dầu xả bưởi',
-        'category' => 'Chăm sóc tóc',
-        'price' => 195000,
-        'badge' => '',
-        'short' => 'Dầu xả',
-        'desc' => 'Suôn mượt, dễ chải, phục hồi tóc khô xơ với chiết xuất bưởi.',
-        'shape' => 'bottle',
-        'color1' => '#F0C27A',
-        'color2' => '#F8E2B4',
-    ],
-    [
-        'id' => 11,
-        'name' => 'Nước dưỡng tóc tinh dầu bưởi',
-        'category' => 'Chăm sóc tóc',
-        'price' => 165000,
-        'badge' => 'YÊU THÍCH',
-        'short' => 'Tinh dầu',
-        'desc' => 'Xịt dưỡng hàng ngày, kích thích mọc tóc và mang hương bưởi tươi mát.',
-        'shape' => 'spray',
-        'color1' => '#E6C36A',
-        'color2' => '#F1D99A',
-    ],
-    [
-        'id' => 12,
-        'name' => 'Kem ủ tóc bưởi',
-        'category' => 'Chăm sóc tóc',
-        'price' => 185000,
-        'badge' => 'NEW',
-        'short' => 'Ủ tóc',
-        'desc' => 'Mặt nạ tóc phục hồi chuyên sâu, bổ sung độ ẩm và độ bóng.',
-        'shape' => 'jar',
-        'color1' => '#D4A84B',
-        'color2' => '#E8C97A',
-    ],
-    [
-        'id' => 13,
-        'name' => 'Sữa tắm đường thốt nốt',
-        'category' => 'Chăm sóc cơ thể',
-        'price' => 185000,
-        'badge' => '',
-        'short' => 'Thốt nốt',
-        'desc' => 'Làm sạch dịu nhẹ, giữ ẩm lâu với đường thốt nốt An Giang.',
-        'shape' => 'bottle',
-        'color1' => '#C4A574',
-        'color2' => '#E2D0B0',
-    ],
-    [
-        'id' => 14,
-        'name' => 'Muối tắm cà phê Đắk Lắk',
-        'category' => 'Chăm sóc cơ thể',
-        'price' => 145000,
-        'badge' => 'SALE',
-        'short' => 'Muối tắm',
-        'desc' => 'Muối khoáng kết hợp cà phê giúp thư giãn, thải độc và làm mịn da.',
-        'shape' => 'jar',
-        'color1' => '#8D6E63',
-        'color2' => '#BCAAA4',
-    ],
-    [
-        'id' => 15,
-        'name' => 'Xà phòng nghệ',
-        'category' => 'Chăm sóc cơ thể',
-        'price' => 95000,
-        'badge' => '',
-        'short' => 'Nghệ',
-        'desc' => 'Xà phòng thủ công từ nghệ vàng, hỗ trợ làm sáng và kháng khuẩn nhẹ.',
-        'shape' => 'soap',
-        'color1' => '#E6B422',
-        'color2' => '#F3D15A',
-    ],
-    [
-        'id' => 16,
-        'name' => 'Tẩy tế bào chết đường thốt nốt',
-        'category' => 'Chăm sóc cơ thể',
-        'price' => 155000,
-        'badge' => 'NEW',
-        'short' => 'Thốt nốt',
-        'desc' => 'Hạt đường thốt nốt tự nhiên giúp da cơ thể sáng mịn, không khô rát.',
-        'shape' => 'jar',
-        'color1' => '#B8956A',
-        'color2' => '#D9C4A4',
-    ],
-];
 
-foreach ($products as &$item) {
-    $item['image'] = product_illustration($item);
-    $item['price_text'] = format_vnd($item['price']);
+require __DIR__ . '/connect.php';
+
+$search = isset($_GET['search']) && is_string($_GET['search'])
+    ? trim($_GET['search']) : '';
+
+$categoryId = isset($_GET['category']) && in_array($_GET['category'], ['1', '2', '3'], true)
+    ? (int) $_GET['category'] : 0;
+
+$sql = "SELECT p.id, p.name, p.price, p.image, p.description,
+               c.name AS category
+        FROM products AS p
+        JOIN categories AS c ON p.category_id = c.id
+        WHERE (? = 0 OR p.category_id = ?)
+          AND p.name LIKE ?
+        ORDER BY p.id";
+
+$stmt = $conn->prepare($sql);
+$searchPattern = '%' . $search . '%';
+$stmt->bind_param('iis', $categoryId, $categoryId, $searchPattern);
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+$products = [];
+
+while ($row = $result->fetch_assoc()) {
+    $row['price'] = (int) $row['price'];
+    $row['desc'] = $row['description'] ?? '';
+    $row['badge'] = '';
+    $row['short'] = 'Cocoon';
+    $row['shape'] = 'box';
+    $row['color1'] = '#8FA87A';
+    $row['color2'] = '#C9D9B8';
+
+    $imageName = basename($row['image']);
+    $row['image'] = is_file(__DIR__ . '/images/' . $imageName)
+        ? 'images/' . $imageName
+        : product_illustration($row);
+
+    $row['price_text'] = format_vnd($row['price']);
+    $products[] = $row;
 }
-unset($item);
+
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -880,16 +724,21 @@ unset($item);
         <section class="container" id="products">
             <div class="toolbar">
                 <div class="cats" role="tablist" aria-label="Danh mục sản phẩm">
-                    <button class="cat-btn active" type="button" data-cat="all">Tất cả</button>
-                    <button class="cat-btn" type="button" data-cat="Chăm sóc da">Chăm sóc da</button>
-                    <button class="cat-btn" type="button" data-cat="Chăm sóc tóc">Chăm sóc tóc</button>
-                    <button class="cat-btn" type="button" data-cat="Chăm sóc cơ thể">Chăm sóc cơ thể</button>
+                   <button class="cat-btn <?= $categoryId === 0 ? 'active' : '' ?>" type="button" data-cat="0">Tất cả</button>
+<button class="cat-btn <?= $categoryId === 1 ? 'active' : '' ?>" type="button" data-cat="1">Chăm sóc da</button>
+<button class="cat-btn <?= $categoryId === 2 ? 'active' : '' ?>" type="button" data-cat="2">Chăm sóc tóc</button>
+<button class="cat-btn <?= $categoryId === 3 ? 'active' : '' ?>" type="button" data-cat="3">Chăm sóc cơ thể</button>
+
                 </div>
                 <div class="tools">
-                    <form class="search-box" id="searchForm" role="search">
+                   <form class="search-box" id="searchForm" role="search" method="get" action="products.php">
+    <input type="hidden" name="category" value="<?= $categoryId ?>">
+
                         <label class="visually-hidden" for="searchInput" style="position:absolute;left:-9999px;">Tìm kiếm sản phẩm</label>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8D6E63" stroke-width="1.7" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-                        <input id="searchInput" type="search" placeholder="Tìm kiếm sản phẩm..." autocomplete="off">
+
+<input id="searchInput" name="search" type="search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" placeholder="Tìm kiếm sản phẩm..." autocomplete="off">
+
                         <button type="submit">Tìm kiếm</button>
                     </form>
                     <div class="sort-wrap">
@@ -1023,8 +872,7 @@ unset($item);
         const overlay = document.getElementById('overlay');
         const drawer = document.getElementById('mobileDrawer');
 
-        let currentCat = 'all';
-        let currentKeyword = '';
+
         let toastTimer = null;
         let modalProductId = null;
 
@@ -1082,21 +930,10 @@ unset($item);
             showToast('Đã thêm sản phẩm vào giỏ hàng!');
         }
 
-        function matchesCard(card) {
-            const cat = card.dataset.category;
-            const name = card.dataset.name.toLowerCase();
-            const okCat = currentCat === 'all' || cat === currentCat;
-            const okKey = !currentKeyword || name.includes(currentKeyword);
-            return okCat && okKey;
-        }
+
 
         function applyFilters() {
-            const visible = [];
-            cards.forEach((card) => {
-                const show = matchesCard(card);
-                card.style.display = show ? '' : 'none';
-                if (show) visible.push(card);
-            });
+    const visible = [...cards];
 
             const sort = sortSelect.value;
             visible.sort((a, b) => {
@@ -1134,25 +971,21 @@ unset($item);
             modalProductId = null;
         }
 
-        document.querySelectorAll('.cat-btn').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.cat-btn').forEach((b) => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentCat = btn.dataset.cat;
-                applyFilters();
-            });
-        });
 
-        document.getElementById('searchForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            currentKeyword = searchInput.value.trim().toLowerCase();
-            applyFilters();
-        });
+document.querySelectorAll('.cat-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        const params = new URLSearchParams();
+        params.set('category', btn.dataset.cat);
 
-        searchInput.addEventListener('input', () => {
-            currentKeyword = searchInput.value.trim().toLowerCase();
-            applyFilters();
-        });
+        const keyword = searchInput.value.trim();
+        if (keyword) params.set('search', keyword);
+
+        window.location.href = 'products.php?' + params.toString();
+    });
+});
+
+
+
 
         sortSelect.addEventListener('change', applyFilters);
 
