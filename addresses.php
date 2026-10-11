@@ -153,14 +153,20 @@ $escape = static fn ($value) => htmlspecialchars((string) $value, ENT_QUOTES, 'U
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Địa chỉ giao hàng - Cocoon</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 	<style>
 		:root { --green: #2E7D32; --green-dark: #256629; --brown: #8D6E63; --ink: #26332a; --muted: #718076; --line: #dfe7df; --bg: #f7f8f5; --danger: #c62828; }
 		* { box-sizing: border-box; }
 		body { min-height: 100vh; margin: 0; background: var(--bg); color: var(--ink); font-family: "Segoe UI", Arial, sans-serif; }
 		a { color: inherit; text-decoration: none; }
-		.topbar { display: flex; align-items: center; gap: 20px; padding: 14px max(20px, calc((100% - 1080px) / 2)); background: #fff; border-bottom: 1px solid var(--line); }
-		.brand { color: var(--green); font-size: 23px; font-weight: 750; letter-spacing: 2px; }
-		.topbar-links { display: flex; align-items: center; gap: 18px; margin-left: auto; font-size: 14px; }
+		.topbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; padding: 14px max(20px, calc((100% - 1080px) / 2)); background: #fff; border-bottom: 1px solid var(--line); }
+		.brand { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; align-items: center; color: #3E3228; font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-weight: 500; }
+		.brand-the { margin-bottom: -4px; font-size: 13px; line-height: 1; }
+		.brand-name { font-size: 28px; line-height: 0.9; }
+		.brand-country { margin-top: 4px; color: var(--brown); font-family: "Segoe UI", Arial, sans-serif; font-size: 8px; font-style: normal; letter-spacing: 0.38em; }
+		.topbar-links { grid-column: 3; grid-row: 1; justify-self: end; display: flex; align-items: center; gap: 18px; font-size: 14px; }
 		.topbar-links a:hover { color: var(--green); }
 		.topbar-links form { margin: 0; }
 		.topbar-links button { border: 0; padding: 0; background: transparent; color: var(--brown); font: inherit; cursor: pointer; }
@@ -193,7 +199,9 @@ $escape = static fn ($value) => htmlspecialchars((string) $value, ENT_QUOTES, 'U
 		.alert { margin-bottom: 20px; padding: 12px 14px; background: #fff1f1; color: var(--danger); }
 		.empty { color: var(--muted); }
 		@media (max-width: 720px) {
-			.topbar { flex-wrap: wrap; padding: 14px 16px; }
+			.topbar { grid-template-columns: 1fr; justify-items: center; padding: 14px 16px; }
+			.brand, .topbar-links { grid-column: 1; }
+			.topbar-links { grid-row: 2; justify-self: center; margin-left: 0; }
 			.topbar-links { flex-wrap: wrap; gap: 12px; }
 			.layout { grid-template-columns: 1fr; }
 		}
@@ -201,7 +209,11 @@ $escape = static fn ($value) => htmlspecialchars((string) $value, ENT_QUOTES, 'U
 </head>
 <body>
 	<header class="topbar">
-		<a class="brand" href="index.php">COCOON</a>
+		<a class="brand" href="index.php" aria-label="the cocoon Vietnam - Trang chủ">
+			<span class="brand-the">the</span>
+			<span class="brand-name">cocoon</span>
+			<span class="brand-country">VIETNAM</span>
+		</a>
 		<nav class="topbar-links" aria-label="Điều hướng tài khoản">
 			<a href="products.php">Sản phẩm</a>
 			<a href="cart.php">Giỏ hàng</a>
