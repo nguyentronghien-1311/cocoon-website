@@ -185,7 +185,7 @@ function e($value): string {
 
                             <div class="col-sm-2">
 
-                            <a class="btn btn-add btn-sm" href="add-product.php" title="Thêm"><i class="fas fa-plus"></i>
+                            <a class="btn btn-add btn-sm" href="products_create.php" title="Thêm"><i class="fas fa-plus"></i>
 
                                 Thêm sản phẩm mới </a>
 
@@ -225,8 +225,6 @@ function e($value): string {
 
                                     <th>Tên sản phẩm</th>
 
-                                    <th>Thương hiệu</th>
-
                                     <th>Mô tả</th>
 
                                     <th>Giá tiền</th>
@@ -258,8 +256,6 @@ function e($value): string {
                 <td><?php echo $row['id']; ?></td>
 
                 <td><?php echo $row['name']; ?></td>
-
-                <td><?php echo '—'; ?></td>
 
                 <td><?php echo $row['description']; ?></td>
 
