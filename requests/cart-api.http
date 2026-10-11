@@ -1,0 +1,37 @@
+### Read the current server-side cart. Open the storefront first so PHP_SESSION and CSRF token exist.
+GET http://localhost/cocoon-website-main/backend/cart/cart_get.php
+Accept: application/json
+
+### Example add-to-cart request.
+### Replace {{csrfToken}} with the value of the csrf-token meta tag in the page source.
+### The REST client also needs to send the PHP session cookie for the same browser/session.
+POST http://localhost/cocoon-website-main/backend/cart/cart_add.php
+Accept: application/json
+Content-Type: application/json
+X-CSRF-Token: {{csrfToken}}
+
+{
+  "product_id": 1,
+  "quantity": 1
+}
+
+### Example update quantity.
+POST http://localhost/cocoon-website-main/backend/cart/cart_update.php
+Accept: application/json
+Content-Type: application/json
+X-CSRF-Token: {{csrfToken}}
+
+{
+  "product_id": 1,
+  "quantity": 2
+}
+
+### Remove one product.
+POST http://localhost/cocoon-website-main/backend/cart/cart_remove.php
+Accept: application/json
+Content-Type: application/json
+X-CSRF-Token: {{csrfToken}}
+
+{
+  "product_id": 1
+}

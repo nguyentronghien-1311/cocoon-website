@@ -9,6 +9,7 @@ if (empty($_SESSION['csrf_token'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
     <title>Giỏ Hàng - Mỹ Phẩm Thuần Chay Cocoon</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -283,11 +284,12 @@ if (empty($_SESSION['csrf_token'])) {
                     <span>Tổng tiền thanh toán:</span>
                     <span id="grand-total">415.000 đ</span>
                 </div>
-                <a href="checkout.php" id="checkout-btn" class="btn-checkout">Tiến Hành Thanh Toán</a>
+                <a href="#" id="checkout-btn" class="btn-checkout" aria-disabled="true" style="pointer-events:none;opacity:.5;">Tiến Hành Thanh Toán</a>
             </div>
         </div>
     </div>
 
+    <script src="js/cart-api.js"></script>
     <script>
         const cartTable = document.getElementById('cart-table');
         const cartEmpty = document.getElementById('cart-empty');
@@ -297,12 +299,13 @@ if (empty($_SESSION['csrf_token'])) {
         const cartItemsEl = document.getElementById('cart-items');
         const menuToggle = document.getElementById('menuToggle');
         const menuPanel = document.getElementById('menuPanel');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        let currentCart = { items: [], total_items: 0, subtotal: 0 };
 
         function closeMenu() {
             menuPanel.hidden = true;
             menuToggle.setAttribute('aria-expanded', 'false');
         }
-
         menuToggle.addEventListener('click', () => {
             const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
             menuPanel.hidden = isOpen;
@@ -315,61 +318,13 @@ if (empty($_SESSION['csrf_token'])) {
             if (event.key === 'Escape') closeMenu();
         });
 
-        const formatCurrency = (value) => {
-            return new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND',
-                maximumFractionDigits: 0
-            }).format(value).replace('₫', 'đ');
-        };
+        const formatCurrency = (value) => new Intl.NumberFormat('vi-VN', {
+            style: 'currency', currency: 'VND', maximumFractionDigits: 0
+        }).format(Number(value) || 0).replace('₫', 'đ');
 
-        function getCartItems() {
-            try {
-                const savedItems = JSON.parse(localStorage.getItem('cocoon_cart_items') || '[]');
-                if (!Array.isArray(savedItems)) return [];
-                return savedItems.map((item) => ({
-                    id: Number(item.id),
-                    name: String(item.name || ''),
-                    category: String(item.category || ''),
-                    price: Number(item.price),
-                    image: String(item.image || ''),
-                    quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
-                })).filter((item) => Number.isInteger(item.id) && item.id > 0 && Number.isFinite(item.price) && item.price >= 0 && item.name !== '');
-            } catch {
-                return [];
-            }
-        }
-
-        function saveCartItems(items) {
-            localStorage.setItem('cocoon_cart_items', JSON.stringify(items));
-            const count = items.reduce((total, item) => total + item.quantity, 0);
-            localStorage.setItem('cocoon_cart_count', String(count));
-        }
-
-        function updateCartTotals(items) {
-            const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
-            subtotalEl.textContent = formatCurrency(subtotal);
-            grandTotalEl.textContent = formatCurrency(subtotal);
-
-            const isEmpty = items.length === 0;
-            cartTable.style.display = isEmpty ? 'none' : '';
-            cartEmpty.hidden = !isEmpty;
-
-            if (isEmpty) {
-                checkoutBtn.setAttribute('href', '#');
-                checkoutBtn.setAttribute('aria-disabled', 'true');
-                checkoutBtn.style.pointerEvents = 'none';
-                checkoutBtn.style.opacity = '0.5';
-            } else {
-                checkoutBtn.setAttribute('href', 'checkout.php');
-                checkoutBtn.removeAttribute('aria-disabled');
-                checkoutBtn.style.pointerEvents = 'auto';
-                checkoutBtn.style.opacity = '1';
-            }
-        }
-
-        function renderCart() {
-            const items = getCartItems();
+        function renderCart(cart) {
+            currentCart = cart || { items: [], total_items: 0, subtotal: 0 };
+            const items = Array.isArray(currentCart.items) ? currentCart.items : [];
             cartItemsEl.replaceChildren();
 
             items.forEach((item) => {
@@ -381,15 +336,15 @@ if (empty($_SESSION['csrf_token'])) {
                 productInfo.className = 'product-info';
                 const image = document.createElement('img');
                 image.className = 'product-img';
-                image.alt = item.name;
-                if (item.image.startsWith('data:image/svg+xml')) image.src = item.image;
+                image.alt = item.name || 'Sản phẩm Cocoon';
+                if (item.image) image.src = item.image;
                 const details = document.createElement('div');
                 const name = document.createElement('div');
                 name.className = 'product-name';
-                name.textContent = item.name;
+                name.textContent = item.name || '';
                 const category = document.createElement('small');
                 category.style.color = '#777';
-                category.textContent = item.category;
+                category.textContent = [item.category, item.volume].filter(Boolean).join(' · ');
                 details.append(name, category);
                 productInfo.append(image, details);
                 productCell.append(productInfo);
@@ -401,6 +356,7 @@ if (empty($_SESSION['csrf_token'])) {
                 quantityInput.type = 'number';
                 quantityInput.className = 'qty-input';
                 quantityInput.min = '1';
+                quantityInput.max = String(Math.max(1, Number(item.stock) || 1));
                 quantityInput.value = String(item.quantity);
                 quantityInput.dataset.productId = String(item.id);
                 quantityInput.setAttribute('aria-label', `Số lượng ${item.name}`);
@@ -408,7 +364,7 @@ if (empty($_SESSION['csrf_token'])) {
 
                 const totalCell = document.createElement('td');
                 totalCell.className = 'line-total';
-                totalCell.textContent = formatCurrency(item.price * item.quantity);
+                totalCell.textContent = formatCurrency(item.line_total);
                 const actionCell = document.createElement('td');
                 const removeButton = document.createElement('button');
                 removeButton.className = 'btn-remove';
@@ -420,35 +376,65 @@ if (empty($_SESSION['csrf_token'])) {
                 cartItemsEl.append(row);
             });
 
-            saveCartItems(items);
-            updateCartTotals(items);
+            subtotalEl.textContent = formatCurrency(currentCart.subtotal);
+            grandTotalEl.textContent = formatCurrency(currentCart.subtotal);
+            const isEmpty = items.length === 0;
+            cartTable.style.display = isEmpty ? 'none' : '';
+            cartEmpty.hidden = !isEmpty;
+            if (isEmpty) {
+                checkoutBtn.href = '#';
+                checkoutBtn.setAttribute('aria-disabled', 'true');
+                checkoutBtn.style.pointerEvents = 'none';
+                checkoutBtn.style.opacity = '0.5';
+            } else {
+                checkoutBtn.href = 'checkout.php';
+                checkoutBtn.removeAttribute('aria-disabled');
+                checkoutBtn.style.pointerEvents = 'auto';
+                checkoutBtn.style.opacity = '1';
+            }
         }
 
-        document.addEventListener('change', (event) => {
-            if (event.target.matches('.qty-input')) {
-                const items = getCartItems();
-                const item = items.find((cartItem) => cartItem.id === Number(event.target.dataset.productId));
-                if (!item) return;
-                item.quantity = Math.max(1, Math.floor(Number(event.target.value) || 1));
-                saveCartItems(items);
-                renderCart();
+        async function loadCart() {
+            try {
+                await window.CocoonCart.migrateLegacy(csrfToken);
+            } catch (error) {
+                console.warn('Không thể chuyển giỏ hàng cũ sang máy chủ:', error.message);
+            }
+            try {
+                renderCart(await window.CocoonCart.getCart());
+            } catch (error) {
+                renderCart({ items: [], total_items: 0, subtotal: 0 });
+                alert(error.message || 'Không thể tải giỏ hàng. Vui lòng thử lại.');
+            }
+        }
+
+        cartItemsEl.addEventListener('change', async (event) => {
+            if (!event.target.matches('.qty-input')) return;
+            const productId = Number(event.target.dataset.productId);
+            const quantity = Number(event.target.value);
+            try {
+                const result = await window.CocoonCart.mutate('update', { product_id: productId, quantity: quantity }, csrfToken);
+                renderCart(result.data);
+            } catch (error) {
+                alert(error.message || 'Không thể cập nhật số lượng.');
+                await loadCart();
             }
         });
 
-        document.addEventListener('click', function (event) {
-            const removeButton = event.target.closest('.btn-remove');
-            if (removeButton) {
-                const items = getCartItems().filter((item) => item.id !== Number(removeButton.dataset.productId));
-                saveCartItems(items);
-                renderCart();
+        cartItemsEl.addEventListener('click', async (event) => {
+            const button = event.target.closest('.btn-remove');
+            if (!button) return;
+            button.disabled = true;
+            try {
+                const result = await window.CocoonCart.mutate('remove', { product_id: Number(button.dataset.productId) }, csrfToken);
+                renderCart(result.data);
+            } catch (error) {
+                alert(error.message || 'Không thể xóa sản phẩm.');
+                await loadCart();
             }
         });
 
-        window.addEventListener('storage', (event) => {
-            if (event.key === 'cocoon_cart_items') renderCart();
-        });
-
-        renderCart();
+        loadCart();
     </script>
 
 </body>

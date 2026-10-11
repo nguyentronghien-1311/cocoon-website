@@ -12,6 +12,7 @@ $featuredProducts = get_catalog_products($conn, 0, '', true, 4);
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
 <title>Cocoon Vietnam - Mỹ phẩm 100% thuần chay</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -373,6 +374,7 @@ button{font:inherit;cursor:pointer;border:0}
   <a href="#" style="color:#e1306c">IG</a><a href="#">TT</a><a href="#" style="color:#1877f2">f</a>
 </aside>
 
+<script src="js/cart-api.js"></script>
 <script>
 /* ===== Dữ liệu mã giảm giá ===== */
 const coupons=[
@@ -423,8 +425,8 @@ document.querySelectorAll('.copy[data-code]').forEach(button=>button.addEventLis
 }));
 
 const cartCount=document.getElementById('cartCount');
-const savedCartCount=Number.parseInt(localStorage.getItem('cocoon_cart_count')||'0',10);
-cartCount.textContent=Number.isFinite(savedCartCount)&&savedCartCount>0?savedCartCount:0;
+const cartCsrfToken=document.querySelector('meta[name="csrf-token"]').content;
+window.CocoonCart.updateCount(cartCount,cartCsrfToken).catch(error=>{console.error('Không thể tải số lượng giỏ hàng:',error);cartCount.textContent='0';});
 const menuToggle=document.getElementById('menuToggle');
 const menuPanel=document.getElementById('menuPanel');
 function closeMenu(){menuPanel.hidden=true;menuToggle.setAttribute('aria-expanded','false')}

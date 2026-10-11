@@ -27,6 +27,7 @@ $products = get_catalog_products($conn, $categoryId, $search);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
     <title>Sản phẩm | the cocoon Vietnam</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -778,6 +779,7 @@ $products = get_catalog_products($conn, $categoryId, $search);
 
     <div class="toast" id="toast" role="status">Đã thêm sản phẩm vào giỏ hàng!</div>
 
+    <script src="js/cart-api.js"></script>
     <script>
         const productsData = <?= json_encode(array_map(function ($p) {
             return [
@@ -806,61 +808,38 @@ $products = get_catalog_products($conn, $categoryId, $search);
         let toastTimer = null;
         let modalProductId = null;
 
-        function getCartItems() {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+        async function updateCartCount() {
             try {
-                const savedItems = JSON.parse(localStorage.getItem('cocoon_cart_items') || '[]');
-                if (!Array.isArray(savedItems)) return [];
-
-                return savedItems.map((item) => ({
-                    id: Number(item.id),
-                    name: String(item.name || ''),
-                    category: String(item.category || ''),
-                    price: Number(item.price),
-                    image: String(item.image || ''),
-                    quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
-                })).filter((item) => Number.isInteger(item.id) && item.id > 0 && Number.isFinite(item.price) && item.price >= 0 && item.name !== '');
-            } catch {
-                return [];
+                const cart = await window.CocoonCart.updateCount(cartCountEl, csrfToken);
+                return cart;
+            } catch (error) {
+                console.error('Không thể tải số lượng giỏ hàng:', error);
+                cartCountEl.textContent = '0';
+                return null;
             }
-        }
-
-        function updateCartCount(items = getCartItems()) {
-            const count = items.reduce((total, item) => total + item.quantity, 0);
-            localStorage.setItem('cocoon_cart_count', String(count));
-            cartCountEl.textContent = String(count);
         }
 
         function showToast(message) {
             toast.textContent = message;
             toast.classList.add('show');
             clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
         }
 
-        function addToCart(productId) {
-            const product = productsData.find((item) => Number(item.id) === Number(productId));
-            if (!product) return;
-
-            const items = getCartItems();
-            const existingItem = items.find((item) => item.id === Number(product.id));
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                items.push({
-                    id: Number(product.id),
-                    name: product.name,
-                    category: product.category,
-                    price: Number(product.price),
-                    image: product.image,
-                    quantity: 1,
-                });
+        async function addToCart(productId) {
+            if (!productId) return;
+            try {
+                const response = await window.CocoonCart.mutate('add', {
+                    product_id: Number(productId), quantity: 1
+                }, csrfToken);
+                cartCountEl.textContent = String(response.data.total_items || 0);
+                showToast(response.message || 'Đã thêm sản phẩm vào giỏ hàng!');
+            } catch (error) {
+                showToast(error.message || 'Không thể thêm sản phẩm. Vui lòng thử lại.');
             }
-            localStorage.setItem('cocoon_cart_items', JSON.stringify(items));
-            updateCartCount(items);
-            showToast('Đã thêm sản phẩm vào giỏ hàng!');
         }
-
-
 
         function applyFilters() {
     const visible = [...cards];
