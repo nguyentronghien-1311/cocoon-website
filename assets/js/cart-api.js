@@ -45,7 +45,7 @@
         if (!hasLegacyKey) return null;
 
         const items = readLegacyItems();
-        const result = await request('cart_import.php', {
+        const result = await request('backend/cart/cart_import.php', {
             method: 'POST',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken || '' },
             body: JSON.stringify({ items: items })
@@ -59,14 +59,14 @@
     }
 
     async function getCart() {
-        const result = await request('cart_get.php');
+        const result = await request('backend/cart/cart_get.php');
         return result.data;
     }
 
     async function mutate(action, data, csrfToken) {
         const allowed = ['add', 'update', 'remove', 'clear'];
         if (!allowed.includes(action)) throw new Error('Thao tác giỏ hàng không hợp lệ.');
-        return request('cart_' + action + '.php', {
+        return request('backend/cart/cart_' + action + '.php', {
             method: 'POST',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken || '' },
             body: JSON.stringify(data || {})

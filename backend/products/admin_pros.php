@@ -77,9 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 }
 
 
-$sql = "SELECT p.id, p.name, p.price, p.image, p.description, p.stock,
-               p.category_id, c.name AS category_name, p.volume,
-               p.is_featured, p.created_at
+$sql = "SELECT p.id, p.name, p.price, p.image, p.description,
+               p.category_id, p.ingredients, p.usage_guide, p.volume,
+               p.stock, p.is_featured, p.created_at,
+               c.name AS category_name
         FROM products AS p
         LEFT JOIN categories AS c ON p.category_id = c.id
         ORDER BY p.id DESC";
@@ -278,12 +279,14 @@ function e($value): string {
                                     <th>Tên sản phẩm</th>
 
                                     <th>Mô tả</th>
-
+                                    <th>Thành phần</th>
+                                    <th>Hướng dẫn sử dụng</th>
                                     <th>Giá tiền</th>
 
                                     <th>Số lượng</th>
 
                                     <th>Kích cỡ</th>
+                                    <th>Nổi bật</th>
 
                                     <th>Mã danh mục</th>
 
@@ -305,21 +308,27 @@ function e($value): string {
 
                 <td><?php echo $row['id']; ?></td>
 
-                <td><?php echo $row['name']; ?></td>
+                <td><?php echo e($row['name']); ?></td>
 
-                <td><?php echo $row['description']; ?></td>
+                <td><?php echo e($row['description']); ?></td>
+
+                <td><?php echo e($row['ingredients']); ?></td>
+
+                <td><?php echo e($row['usage_guide']); ?></td>
 
                 <td><?php echo number_format($row['price'], 0, '.', ','); ?></td>
 
-                <td><?php echo $row['stock']; ?></td>
+                <td><?php echo (int)$row['stock']; ?></td>
 
-                <td><?php echo $row['volume']; ?></td>
+                <td><?php echo e($row['volume']); ?></td>
 
-                <td><?php echo $row['category_id']; ?></td>
+                <td><?php echo (int)$row['is_featured'] === 1 ? 'Có' : 'Không'; ?></td>
 
-                <td><img src='../../assets/images/<?=$row["image"]?>' height='200px'></td>
+                <td><?php echo (int)$row['category_id']; ?></td>
 
-                <td><?php echo $row['created_at']; ?></td>
+                <td><img src="../../assets/images/<?= rawurlencode(basename((string)$row['image'])) ?>" alt="<?= e($row['name']) ?>" height="100"></td>
+
+                <td><?php echo e($row['created_at']); ?></td>
 
                 <td>
                     <form method="POST"

@@ -16,6 +16,11 @@ function e($value): string {
     );
 }
 
+function post_text(string $key): string {
+    $value = $_POST[$key] ?? '';
+    return is_string($value) ? trim($value) : '';
+}
+
 // Lấy danh sách danh mục
 $sql = "SELECT id, name FROM categories ORDER BY id DESC";
 $result = $connect->query($sql);
@@ -30,12 +35,14 @@ $categories = $result->fetch_all(MYSQLI_ASSOC);
 // Xử lý khi bấm Lưu sản phẩm
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $name = trim($_POST['name'] ?? '');
+    $name = post_text('name');
     $price = $_POST['price'] ?? '';
     $stock = $_POST['stock'] ?? '';
     $category_id = $_POST['category_id'] ?? '';
-    $volume = trim($_POST['volume'] ?? '');
-    $description = trim($_POST['description'] ?? '');
+    $volume = post_text('volume');
+    $description = post_text('description');
+    $ingredients = post_text('ingredients');
+    $usage_guide = post_text('usage_guide');
     $is_featured = $_POST['is_featured'] ?? '0';
 
     
@@ -44,6 +51,9 @@ $errors = [];
 // Kiểm tra tên sản phẩm
 if ($name === '') {
     $errors[] = 'Tên sản phẩm đang trống.';
+}
+if (mb_strlen($volume, 'UTF-8') > 50) {
+    $errors[] = 'Kích cỡ / dung tích không được vượt quá 50 ký tự.';
 }
 
 // Kiểm tra giá
@@ -158,9 +168,9 @@ if (!empty($errors)) {
                             // Lưu thông tin sản phẩm vào database
                             $insert = $connect->prepare(
                                 "INSERT INTO products
-                                (name, price, image, description, stock,
-                                 category_id, volume, is_featured)
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                                (name, price, image, description, ingredients,
+                                 usage_guide, stock, category_id, volume, is_featured)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                             );
 
                             if (!$insert) {
@@ -172,11 +182,13 @@ if (!empty($errors)) {
                             } else {
 
                                 $insert->bind_param(
-                                    "sdssiisi",
+                                    "sdssssiisi",
                                     $name,
                                     $price,
                                     $imageName,
                                     $description,
+                                    $ingredients,
+                                    $usage_guide,
                                     $stock,
                                     $category_id,
                                     $volume,
@@ -466,8 +478,28 @@ if (!empty($errors)) {
                                     type="text"
                                     id="volume"
                                     name="volume"
-                                    maxlength="100"
+                                    maxlength="50"
                                     placeholder="Ví dụ: S, M, L hoặc 100ml">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ingredients">Thành phần</label>
+                                <textarea
+                                    class="form-control"
+                                    id="ingredients"
+                                    name="ingredients"
+                                    rows="4"
+                                    placeholder="Nhập các thành phần, phân tách bằng dấu phẩy..."><?= e(post_text('ingredients')) ?></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="usage_guide">Hướng dẫn sử dụng</label>
+                                <textarea
+                                    class="form-control"
+                                    id="usage_guide"
+                                    name="usage_guide"
+                                    rows="4"
+                                    placeholder="Nhập hướng dẫn sử dụng..."><?= e(post_text('usage_guide')) ?></textarea>
                             </div>
 
                             <!-- Mô tả -->

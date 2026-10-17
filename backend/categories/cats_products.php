@@ -32,8 +32,8 @@ if (!$category) {
 
 // Lấy sản phẩm thuộc danh mục đang chọn
 $sql = "SELECT p.id, p.name, p.price, p.image, p.description,
-               p.stock, p.category_id, c.name AS category_name,
-               p.volume, p.is_featured, p.created_at
+               p.ingredients, p.usage_guide, p.stock, p.category_id,
+               c.name AS category_name, p.volume, p.is_featured, p.created_at
         FROM products AS p
         LEFT JOIN categories AS c ON p.category_id = c.id
         WHERE p.category_id = ?
@@ -220,9 +220,12 @@ function e($value): string {
                                     <th>ID</th>
                                     <th>Tên sản phẩm</th>
                                     <th>Mô tả</th>
+                                    <th>Thành phần</th>
+                                    <th>Hướng dẫn sử dụng</th>
                                     <th>Giá tiền</th>
                                     <th>Số lượng</th>
                                     <th>Kích cỡ</th>
+                                    <th>Nổi bật</th>
                                     <th>Mã danh mục</th>
                                     <th>Hình ảnh</th>
                                     <th>Ngày tạo</th>
@@ -238,6 +241,10 @@ function e($value): string {
 
                                     <td><?= e($row['description']) ?></td>
 
+                                    <td><?= e($row['ingredients']) ?></td>
+
+                                    <td><?= e($row['usage_guide']) ?></td>
+
                                     <td>
                                         <?= number_format(
                                             (float)$row['price'],
@@ -250,6 +257,8 @@ function e($value): string {
                                     <td><?= e($row['stock']) ?></td>
 
                                     <td><?= e($row['volume']) ?></td>
+
+                                    <td><?= (int)$row['is_featured'] === 1 ? 'Có' : 'Không' ?></td>
 
                                     <td><?= (int)$row['category_id'] ?></td>
 

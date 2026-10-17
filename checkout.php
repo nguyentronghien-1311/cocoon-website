@@ -420,7 +420,7 @@ try {
                     <div class="error" role="alert">Giỏ hàng đang trống. Vui lòng thêm sản phẩm trước khi đặt hàng.</div>
                     <a class="back-link" href="products.php">← Tiếp tục mua sắm</a>
                 <?php endif; ?>
-                <form action="orders_create.php" method="post" id="checkoutForm">
+                <form action="backend/orders/orders_create.php" method="post" id="checkoutForm">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="checkout_token" value="<?= htmlspecialchars($_SESSION['checkout_token'], ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="coupon_code" id="couponCode" value="<?= htmlspecialchars($couponCode, ENT_QUOTES, 'UTF-8') ?>">

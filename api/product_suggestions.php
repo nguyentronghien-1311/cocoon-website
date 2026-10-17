@@ -19,8 +19,8 @@ if (!preg_match('/^.{2}/us', $search)) {
 }
 
 try {
-    require_once __DIR__ . '/includes/connect.php';
-    require_once __DIR__ . '/product_catalog.php';
+    require_once dirname(__DIR__) . '/includes/connect.php';
+    require_once dirname(__DIR__) . '/includes/product_catalog.php';
 
     $products = get_catalog_products($conn, 0, $search, false, 6);
     $suggestions = array_map(static function (array $product): array {

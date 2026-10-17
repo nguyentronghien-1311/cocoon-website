@@ -16,6 +16,11 @@ function e($value): string {
     );
 }
 
+function post_text(string $key): string {
+    $value = $_POST[$key] ?? '';
+    return is_string($value) ? trim($value) : '';
+}
+
 // Kiểm tra ID sản phẩm từ URL
 $product_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
@@ -25,8 +30,8 @@ if (!$product_id || $product_id <= 0) {
 
 // Lấy thông tin sản phẩm
 $stmt = $connect->prepare(
-    "SELECT id, name, price, image, description, stock,
-            category_id, volume, is_featured
+    "SELECT id, name, price, image, description, ingredients,
+            usage_guide, stock, category_id, volume, is_featured
      FROM products
      WHERE id = ?"
 );
@@ -64,8 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $priceInput = $_POST['price'] ?? '';
     $stockInput = $_POST['stock'] ?? '';
     $categoryInput = $_POST['category_id'] ?? '';
-    $volume = trim($_POST['volume'] ?? '');
-    $description = trim($_POST['description'] ?? '');
+    $volume = post_text('volume');
+    $description = post_text('description');
+    $ingredients = post_text('ingredients');
+    $usage_guide = post_text('usage_guide');
     $featuredInput = $_POST['is_featured'] ?? '';
 
     // Giữ lại dữ liệu vừa nhập nếu có lỗi
@@ -75,6 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $product['category_id'] = $categoryInput;
     $product['volume'] = $volume;
     $product['description'] = $description;
+    $product['ingredients'] = $ingredients;
+    $product['usage_guide'] = $usage_guide;
     $product['is_featured'] = $featuredInput;
 
     // Kiểm tra dữ liệu đầu vào
@@ -92,8 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         !in_array((string)$featuredInput, ['0', '1'], true)
     ) {
         $error = 'Dữ liệu sản phẩm không hợp lệ!';
-    } elseif (mb_strlen($volume, 'UTF-8') > 100) {
-        $error = 'Kích cỡ / dung tích không được vượt quá 100 ký tự!';
+    } elseif (mb_strlen($volume, 'UTF-8') > 50) {
+        $error = 'Kích cỡ / dung tích không được vượt quá 50 ký tự!';
     } else {
 
         $price = (float)$priceInput;
@@ -191,6 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                          price = ?,
                          image = ?,
                          description = ?,
+                         ingredients = ?,
+                         usage_guide = ?,
                          stock = ?,
                          category_id = ?,
                          volume = ?,
@@ -203,11 +214,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
 
                     $update->bind_param(
-                        "sdssiisii",
+                        "sdssssiisii",
                         $name,
                         $price,
                         $imageName,
                         $description,
+                        $ingredients,
+                        $usage_guide,
                         $stock,
                         $category_id,
                         $volume,
@@ -583,9 +596,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     type="text"
                                     id="volume"
                                     name="volume"
-                                    maxlength="100"
+                                    maxlength="50"
                                     placeholder="Ví dụ: S, M, L hoặc 100ml"
                                     value="<?= e($product['volume']) ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ingredients">Thành phần</label>
+                                <textarea
+                                    class="form-control"
+                                    id="ingredients"
+                                    name="ingredients"
+                                    rows="4"
+                                    placeholder="Nhập các thành phần, phân tách bằng dấu phẩy..."><?= e($product['ingredients']) ?></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="usage_guide">Hướng dẫn sử dụng</label>
+                                <textarea
+                                    class="form-control"
+                                    id="usage_guide"
+                                    name="usage_guide"
+                                    rows="4"
+                                    placeholder="Nhập hướng dẫn sử dụng..."><?= e($product['usage_guide']) ?></textarea>
                             </div>
 
                             <!-- Mô tả -->

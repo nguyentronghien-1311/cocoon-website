@@ -70,6 +70,7 @@ function product_illustration($product) {
 
 function get_catalog_products(mysqli $conn, int $categoryId = 0, string $search = '', bool $featuredOnly = false, ?int $limit = null): array {
     $sql = "SELECT p.id, p.name, p.price, p.image, p.description,
+                   p.volume, p.ingredients,
                    c.name AS category
             FROM products AS p
             JOIN categories AS c ON p.category_id = c.id
@@ -83,12 +84,15 @@ function get_catalog_products(mysqli $conn, int $categoryId = 0, string $search 
     if ($featuredOnly) {
         $sql .= " AND p.is_featured = 1";
     }
-    $sql .= " ORDER BY p.id";
+    $sql .= " ORDER BY p.created_at DESC, p.id DESC";
     if ($limit !== null) {
         $sql .= " LIMIT " . max(1, $limit);
     }
 
     $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        throw new RuntimeException('Unable to prepare product catalog query: ' . $conn->error);
+    }
     if ($categoryId > 0 && $search !== '') {
         $searchPattern = '%' . $search . '%';
         $stmt->bind_param('isss', $categoryId, $searchPattern, $searchPattern, $searchPattern);
@@ -98,7 +102,11 @@ function get_catalog_products(mysqli $conn, int $categoryId = 0, string $search 
         $searchPattern = '%' . $search . '%';
         $stmt->bind_param('sss', $searchPattern, $searchPattern, $searchPattern);
     }
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        throw new RuntimeException('Unable to load product catalog: ' . $error);
+    }
     $result = $stmt->get_result();
 
     $products = [];
@@ -112,7 +120,7 @@ function get_catalog_products(mysqli $conn, int $categoryId = 0, string $search 
         $row['color2'] = '#C9D9B8';
 
         $imageName = basename($row['image']);
-        $row['image'] = is_file(__DIR__ . '/assets/images/' . $imageName)
+        $row['image'] = is_file(dirname(__DIR__) . '/assets/images/' . $imageName)
             ? 'assets/images/' . $imageName
             : product_illustration($row);
 

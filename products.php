@@ -11,13 +11,15 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 require __DIR__ . '/includes/connect.php';
-require __DIR__ . '/product_catalog.php';
+require __DIR__ . '/includes/product_catalog.php';
 
 $search = isset($_GET['search']) && is_string($_GET['search'])
     ? trim($_GET['search']) : '';
 
-$categoryId = isset($_GET['category']) && in_array($_GET['category'], ['1', '2', '3'], true)
-    ? (int) $_GET['category'] : 0;
+$categoryIdInput = isset($_GET['category']) && is_string($_GET['category'])
+    ? filter_var($_GET['category'], FILTER_VALIDATE_INT) : false;
+$categoryId = $categoryIdInput !== false && $categoryIdInput > 0
+    ? $categoryIdInput : 0;
 
 $products = get_catalog_products($conn, $categoryId, $search);
 
@@ -749,6 +751,9 @@ $products = get_catalog_products($conn, $categoryId, $search);
                         <div class="card-body">
                             <div class="card-cat"><?= htmlspecialchars($product['category'], ENT_QUOTES, 'UTF-8') ?></div>
                             <h3><?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?></h3>
+                            <?php if (!empty($product['volume'])): ?>
+                                <span class="volume-label"><?= htmlspecialchars($product['volume'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <?php endif; ?>
                             <p class="desc"><?= htmlspecialchars($product['desc'], ENT_QUOTES, 'UTF-8') ?></p>
                             <div class="price"><?= htmlspecialchars($product['price_text'], ENT_QUOTES, 'UTF-8') ?></div>
                             <div class="actions">
@@ -818,7 +823,7 @@ $products = get_catalog_products($conn, $categoryId, $search);
     <div class="toast" id="toast" role="status">Đã thêm sản phẩm vào giỏ hàng!</div>
 
     <script src="assets/js/cart-api.js"></script>
-    <script src="js/product-search.js"></script>
+    <script src="assets/js/product-search.js"></script>
     <script>
         const productsData = <?= json_encode(array_map(function ($p) {
             return [

@@ -25,7 +25,8 @@ The existing MySQLi connection used by older pages is left in place. Shared PHP 
 ## Project structure
 
 - `assets/css/`, `assets/js/`, and `assets/images/` contain storefront styles, scripts, and product/brand images.
-- `includes/` contains shared PHP connections and helpers.
+- `includes/` contains shared PHP connections, catalog logic, and helpers.
+- `api/` contains the product-search and Mega Menu JSON endpoints.
 - `assets/css/admin.css` contains administration styles; `backend/` contains administration pages, cart/order endpoints, and backend-only files.
 - Storefront pages such as `index.php`, `cart.php`, and `checkout.php` remain at the project root so their existing URLs continue to work.
 
@@ -37,13 +38,13 @@ All cart mutations require a valid CSRF token from the current PHP session. The 
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
-| `GET` | `cart_get.php` | Get the current session cart, current database prices, stock, line totals and subtotal |
-| `POST` | `cart_add.php` | Add quantity of a product |
-| `POST` | `cart_update.php` | Update an existing item quantity |
-| `POST` | `cart_remove.php` | Remove one item |
-| `POST` | `cart_clear.php` | Clear the cart |
-| `POST` | `cart_import.php` | One-time validated migration from the previous browser-stored cart |
-| `POST` | `orders_create.php` | Validate checkout and create an order |
+| `GET` | `backend/cart/cart_get.php` | Get the current session cart, current database prices, stock, line totals and subtotal |
+| `POST` | `backend/cart/cart_add.php` | Add quantity of a product |
+| `POST` | `backend/cart/cart_update.php` | Update an existing item quantity |
+| `POST` | `backend/cart/cart_remove.php` | Remove one item |
+| `POST` | `backend/cart/cart_clear.php` | Clear the cart |
+| `POST` | `backend/cart/cart_import.php` | One-time validated migration from the previous browser-stored cart |
+| `POST` | `backend/orders/orders_create.php` | Validate checkout and create an order |
 
 POST cart API requests accept JSON with the `X-CSRF-Token` header. Typical request body examples:
 
