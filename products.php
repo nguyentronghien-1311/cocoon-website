@@ -1,0 +1,992 @@
+<?php
+/**
+ * Trang danh sách sản phẩm — Website mỹ phẩm thuần chay Cocoon Việt Nam
+ * Bài tập nhóm môn Thiết kế Web – TMU
+ * File duy nhất: products.php (chạy trên XAMPP)
+ */
+
+session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+require __DIR__ . '/includes/connect.php';
+require __DIR__ . '/product_catalog.php';
+
+$search = isset($_GET['search']) && is_string($_GET['search'])
+    ? trim($_GET['search']) : '';
+
+$categoryId = isset($_GET['category']) && in_array($_GET['category'], ['1', '2', '3'], true)
+    ? (int) $_GET['category'] : 0;
+
+$products = get_catalog_products($conn, $categoryId, $search);
+
+?>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+    <title>Sản phẩm | the cocoon Vietnam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green: #2E7D32;
+            --green-dark: #1B5E20;
+            --brown: #8D6E63;
+            --turmeric: #E8C547;
+            --bg: #FAF8F3;
+            --bg-soft: #F3EEE6;
+            --white: #FFFFFF;
+            --text: #222222;
+            --text-2: #333333;
+            --muted: #666666;
+            --line: #E6E0D6;
+            --radius: 10px;
+            --shadow: 0 8px 24px rgba(62, 48, 36, 0.06);
+            --header-h: 88px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.55;
+            min-height: 100vh;
+        }
+        img { max-width: 100%; display: block; }
+        a { color: inherit; text-decoration: none; }
+        button, input, select { font-family: inherit; }
+        button { cursor: pointer; }
+        .container { width: min(1280px, calc(100% - 40px)); margin: 0 auto; }
+
+        /* Announcement */
+        .announce {
+            background: #F0EBE1;
+            color: var(--text-2);
+            font-size: 13px;
+            letter-spacing: 0.02em;
+            text-align: center;
+            padding: 10px 16px;
+        }
+        .announce span { opacity: 0.7; margin-left: 6px; }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(250, 248, 243, 0.96);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line);
+        }
+        .header-inner {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            align-items: center;
+            min-height: var(--header-h);
+            gap: 16px;
+        }
+        .nav {
+            grid-column: 1;
+            display: flex;
+            gap: 22px;
+            align-items: center;
+        }
+        .nav a {
+            font-size: 14px;
+            color: var(--text-2);
+            position: relative;
+            padding: 6px 0;
+        }
+        .nav a:hover,
+        .nav a.is-active { color: var(--green-dark); }
+        .nav a.is-active::after {
+            content: "";
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 1px;
+            background: var(--green);
+        }
+        .logo {
+            grid-column: 2;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .logo .brand-the {
+            display: block;
+            margin-bottom: -5px;
+            color: #3E3228;
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 16px;
+            font-style: italic;
+            font-weight: 500;
+            line-height: 1;
+        }
+        .logo .brand {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-style: italic;
+            font-size: 34px;
+            line-height: 0.9;
+            color: #3E3228;
+            font-weight: 500;
+            display: block;
+        }
+        .logo .sub {
+            display: block;
+            margin-top: 4px;
+            font-size: 10px;
+            letter-spacing: 0.38em;
+            color: var(--brown);
+        }
+        .header-actions {
+            grid-column: 3;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 6px;
+        }
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: 0;
+            color: var(--text-2);
+            padding: 8px 10px;
+            border-radius: 999px;
+            font-size: 13px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .icon-btn:hover { background: var(--bg-soft); color: var(--green-dark); }
+        .icon-btn:active { transform: translateY(1px); }
+        .icon-btn svg { width: 20px; height: 20px; }
+        .cart-btn .count {
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--green);
+            color: #fff;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .lang { font-weight: 600; letter-spacing: 0.08em; }
+        .menu-toggle { display: inline-flex; }
+
+        /* Breadcrumb + hero */
+        .page-head { padding: 36px 0 18px; }
+        .crumb {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 28px;
+        }
+        .crumb a:hover { color: var(--green); }
+        .page-head h1 {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: clamp(36px, 5vw, 52px);
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-align: center;
+            color: #2C241C;
+        }
+        .page-head p {
+            max-width: 620px;
+            margin: 14px auto 0;
+            text-align: center;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0 22px;
+        }
+        .cats { display: flex; flex-wrap: wrap; gap: 8px; }
+        .cat-btn {
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--text-2);
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            transition: 0.22s;
+        }
+        .cat-btn:hover { border-color: var(--brown); color: var(--brown); }
+        .cat-btn.active {
+            background: var(--green);
+            border-color: var(--green);
+            color: #fff;
+        }
+        .tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-left: auto;
+        }
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 8px 8px 8px 14px;
+            min-width: min(320px, 100%);
+        }
+        .search-box:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(46,125,50,.12); }
+        .search-box input {
+            border: 0;
+            outline: 0;
+            background: transparent;
+            width: 100%;
+            font-size: 14px;
+            color: var(--text);
+        }
+        .search-box > button {
+            background: var(--green);
+            color: #fff;
+            border: 0;
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        .search-box > button:hover { background: var(--green-dark); }
+        .search-box > button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .search-suggestions {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            z-index: 70;
+            max-height: 360px;
+            overflow-y: auto;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 10px 28px rgba(62, 48, 36, 0.14);
+        }
+        .search-suggestions[hidden] { display: none; }
+        .search-suggestion {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 14px;
+            text-align: left;
+            background: var(--white);
+            border: 0;
+            border-bottom: 1px solid var(--bg-soft);
+            border-radius: 0;
+            color: var(--text);
+            font: inherit;
+            cursor: pointer;
+        }
+        .search-suggestion:last-child { border-bottom: 0; }
+        .search-suggestion:hover, .search-suggestion[aria-selected="true"] { background: var(--bg); }
+        .search-suggestion-name { font-size: 14px; font-weight: 600; }
+        .search-suggestion-meta { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+        .search-suggestion-price { flex: none; color: var(--green-dark); font-size: 13px; font-weight: 600; }
+        .search-suggestion-empty { padding: 12px 14px; color: var(--muted); font-size: 13px; }
+        .sort-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .sort-wrap select {
+            border: 1px solid var(--line);
+            background: var(--white);
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: var(--text-2);
+            outline: none;
+        }
+        .sort-wrap select:focus { border-color: var(--green); }
+        .result-count {
+            width: 100%;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            padding-bottom: 64px;
+        }
+        .card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 32px rgba(62, 48, 36, 0.1);
+        }
+        .card-media {
+            position: relative;
+            background: var(--bg-soft);
+            aspect-ratio: 4 / 5;
+            overflow: hidden;
+        }
+        .card-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        .card:hover .card-media img { transform: scale(1.04); }
+        .badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            background: #FFF8E7;
+            color: #6D4C41;
+            border: 1px solid #E8D9B0;
+            padding: 4px 8px;
+            border-radius: 999px;
+        }
+        .badge.sale { background: #F3E5D8; color: #8D4B32; border-color: #E0C4B0; }
+        .badge.new { background: #E8F5E9; color: var(--green-dark); border-color: #C8E6C9; }
+        .wish {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 0;
+            background: rgba(255,255,255,.88);
+            color: var(--brown);
+            display: grid;
+            place-items: center;
+            transition: 0.2s;
+        }
+        .wish:hover, .wish.active { color: #C62828; background: #fff; }
+        .wish.active svg { fill: #C62828; }
+        .card-body { padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .card-cat { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brown); }
+        .card-body h3 { font-size: 16px; font-weight: 600; line-height: 1.35; color: var(--text); }
+        .card-body .desc { font-size: 13px; color: var(--muted); min-height: 38px; }
+        .price {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--green-dark);
+            margin-top: 4px;
+        }
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; padding-top: 8px; }
+        .btn {
+            border-radius: 8px;
+            padding: 9px 10px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .btn-ghost {
+            background: transparent;
+            border-color: var(--line);
+            color: var(--text-2);
+        }
+        .btn-ghost:hover { border-color: var(--green); color: var(--green-dark); }
+        .btn-primary {
+            background: var(--green);
+            color: #fff;
+        }
+        .btn-primary:hover { background: var(--green-dark); }
+        .btn:active { transform: translateY(1px); }
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+            display: none;
+        }
+        .empty.show { display: block; }
+
+        /* Footer */
+        footer {
+            background: #F3EEE6;
+            border-top: 1px solid var(--line);
+            padding: 48px 0 0;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr 1fr;
+            gap: 32px;
+            padding-bottom: 36px;
+        }
+        .footer-brand { text-align: center; }
+        .footer-brand .brand {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-style: italic;
+            font-size: 28px;
+        }
+        .footer-brand .brand-the {
+            display: block;
+            margin-bottom: -4px;
+            color: #3E3228;
+            font-size: 13px;
+            line-height: 1;
+        }
+        .footer-brand .brand-country {
+            display: block;
+            margin-top: 4px;
+            color: var(--brown);
+            font-family: Inter, Arial, sans-serif;
+            font-size: 8px;
+            font-style: normal;
+            letter-spacing: 0.38em;
+        }
+        .footer-brand p { color: var(--muted); margin: 10px auto 0; max-width: 260px; font-size: 14px; }
+        footer h4 {
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            color: #3E3228;
+        }
+        footer ul { list-style: none; display: grid; gap: 8px; }
+        footer li, .socials button {
+            font-size: 14px;
+            color: var(--muted);
+            background: none;
+            border: 0;
+            padding: 0;
+            text-align: left;
+        }
+        footer a:hover, .socials button:hover { color: var(--green); }
+        .copy {
+            border-top: 1px solid var(--line);
+            padding: 16px 0;
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: #2C241C;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.18);
+            transform: translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.25s;
+            z-index: 80;
+        }
+        .toast.show { opacity: 1; transform: none; }
+
+        /* Modal */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(40, 32, 24, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 70;
+        }
+        .overlay.show { display: flex; }
+        .modal {
+            width: min(860px, 100%);
+            background: var(--white);
+            border-radius: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            position: relative;
+            max-height: calc(100vh - 40px);
+        }
+        .modal-media { background: var(--bg-soft); display: grid; place-items: center; padding: 24px; }
+        .modal-media img { width: 100%; max-height: 420px; object-fit: contain; }
+        .modal-body { padding: 32px 28px; overflow: auto; }
+        .modal-body .cat { color: var(--brown); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; }
+        .modal-body h2 { font-size: 26px; margin: 10px 0 12px; font-weight: 600; }
+        .modal-body .price { font-size: 22px; margin-bottom: 14px; }
+        .close-x {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            border: 0;
+            border-radius: 50%;
+            background: #fff;
+            font-size: 20px;
+            color: var(--text-2);
+        }
+        .mobile-drawer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            background: rgba(0,0,0,.35);
+        }
+        .mobile-drawer.show { display: block; }
+        .drawer {
+            width: min(320px, 86%);
+            height: 100%;
+            background: var(--bg);
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .drawer a { font-size: 16px; }
+        .drawer form { margin: 0; }
+        .drawer .logout-button {
+            padding: 0;
+            border: 0;
+            background: none;
+            color: var(--text-2);
+            font: inherit;
+            font-size: 16px;
+            text-align: left;
+            cursor: pointer;
+        }
+        .drawer .logout-button:hover { color: var(--green); }
+
+        *:focus-visible {
+            outline: 2px solid var(--green);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 1200px) {
+            .grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 1024px) {
+            .header-inner { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+            .nav { display: none; }
+            .icon-label { display: none; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+            .modal { grid-template-columns: 1fr; overflow: auto; }
+            .modal-media { padding: 10px; }
+            .tools { width: 100%; margin-left: 0; }
+            .search-box { min-width: 100%; }
+            .logo .brand { font-size: 28px; }
+        }
+        @media (max-width: 480px) {
+            .container { width: calc(100% - 24px); }
+            .actions { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .page-head { padding-top: 24px; }
+            .card-body h3 { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="announce">
+        Tận hưởng giao hàng miễn phí toàn quốc với hóa đơn từ 99.000đ <span aria-hidden="true">+</span>
+    </div>
+
+    <header class="header">
+        <div class="container header-inner">
+            <nav class="nav" aria-label="Menu chính">
+                <a href="#products" class="is-active">Sản phẩm</a>
+                <a href="#products">Khuyến mãi</a>
+                <a href="#about">Cocoon</a>
+            </nav>
+
+            <a class="logo" href="index.php" id="top">
+                <span class="brand-the">the</span>
+                <span class="brand">cocoon</span>
+                <span class="sub">VIETNAM</span>
+            </a>
+
+            <div class="header-actions">
+                <button class="icon-btn" type="button" aria-label="Tìm kiếm" id="focusSearch">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                </button>
+                <?php if (!isset($_SESSION['user_id'])): ?>
+                <a class="icon-btn" href="login.php" aria-label="Đăng nhập hoặc đăng ký">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5 19c1.5-3.2 4-4.8 7-4.8S17.5 15.8 19 19"/></svg>
+                    <span class="icon-label">Đăng nhập/Đăng ký</span>
+                </a>
+                <?php endif; ?>
+                <button class="icon-btn" type="button" aria-label="Liên hệ">
+                    <span class="icon-label">Liên hệ</span>
+                </button>
+                <a class="icon-btn cart-btn" href="cart.php" aria-label="Giỏ hàng">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 8h12l-1 11H7L6 8z"/><path d="M9 8V7a3 3 0 016 0v1"/></svg>
+                    <span class="icon-label">Giỏ hàng</span>
+                    <span class="count" id="cartCount">0</span>
+                </a>
+                <button class="icon-btn lang" type="button" aria-label="Ngôn ngữ">EN</button>
+                <button class="icon-btn menu-toggle" type="button" aria-label="Mở menu" aria-controls="mobileDrawer" aria-expanded="false" id="openMenu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="drawer" role="dialog" aria-label="Menu điện thoại">
+            <button class="icon-btn" type="button" id="closeMenu" aria-label="Đóng menu">✕ Đóng</button>
+            <a href="#products">Sản phẩm</a>
+            <a href="#products">Khuyến mãi</a>
+            <a href="saved-coupons.php">Mã giảm giá đã lưu</a>
+            <a href="#about">Cocoon</a>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="addresses.php">Địa chỉ giao hàng</a>
+                <form action="logout.php" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+                    <button class="logout-button" type="submit">Đăng xuất</button>
+                </form>
+            <?php else: ?>
+                <a href="login.php">Đăng nhập</a>
+                <a href="register.php">Đăng ký</a>
+            <?php endif; ?>
+            <a href="#footer">Liên hệ</a>
+        </div>
+    </div>
+
+    <main>
+        <section class="page-head container">
+            <nav class="crumb" aria-label="Breadcrumb">
+                <a href="index.php">Trang chủ</a> / <span>Sản phẩm</span>
+            </nav>
+            <h1>SẢN PHẨM</h1>
+            <p>Khám phá các sản phẩm chăm sóc da, tóc và cơ thể thuần chay từ những nguyên liệu thiên nhiên Việt Nam.</p>
+        </section>
+
+        <section class="container" id="products">
+            <div class="toolbar">
+                <div class="cats" role="tablist" aria-label="Danh mục sản phẩm">
+                   <button class="cat-btn <?= $categoryId === 0 ? 'active' : '' ?>" type="button" data-cat="0">Tất cả</button>
+<button class="cat-btn <?= $categoryId === 1 ? 'active' : '' ?>" type="button" data-cat="1">Chăm sóc da</button>
+<button class="cat-btn <?= $categoryId === 2 ? 'active' : '' ?>" type="button" data-cat="2">Chăm sóc tóc</button>
+<button class="cat-btn <?= $categoryId === 3 ? 'active' : '' ?>" type="button" data-cat="3">Chăm sóc cơ thể</button>
+
+                </div>
+                <div class="tools">
+                   <form class="search-box" id="searchForm" role="search" method="get" action="products.php" data-product-search>
+    <input type="hidden" name="category" value="<?= $categoryId ?>">
+
+                        <label class="visually-hidden" for="searchInput" style="position:absolute;left:-9999px;">Tìm kiếm sản phẩm</label>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8D6E63" stroke-width="1.7" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+
+<input id="searchInput" name="search" type="search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" placeholder="Tìm kiếm sản phẩm..." autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="productSearchSuggestions">
+
+                        <button type="submit">Tìm kiếm</button>
+                        <div class="search-suggestions" id="productSearchSuggestions" role="listbox" aria-label="Gợi ý sản phẩm" hidden></div>
+                    </form>
+                    <div class="sort-wrap">
+                        <label for="sortSelect">Sắp xếp</label>
+                        <select id="sortSelect">
+                            <option value="default">Mặc định</option>
+                            <option value="price-asc">Giá thấp → cao</option>
+                            <option value="price-desc">Giá cao → thấp</option>
+                            <option value="name-asc">Tên A → Z</option>
+                            <option value="name-desc">Tên Z → A</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="result-count" id="resultCount">Hiển thị <?= count($products) ?> sản phẩm</div>
+            </div>
+
+            <div class="grid" id="productGrid">
+                <?php foreach ($products as $index => $product): ?>
+                    <?php
+                        $badgeClass = '';
+                        if ($product['badge'] === 'NEW') $badgeClass = 'new';
+                        if ($product['badge'] === 'SALE') $badgeClass = 'sale';
+                    ?>
+                    <article
+                        class="card"
+                        data-id="<?= (int) $product['id'] ?>"
+                        data-name="<?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-category="<?= htmlspecialchars($product['category'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-price="<?= (int) $product['price'] ?>"
+                        data-index="<?= (int) $index ?>"
+                    >
+                        <div class="card-media">
+                            <img src="<?= htmlspecialchars($product['image'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?>">
+                            <?php if ($product['badge'] !== ''): ?>
+                                <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($product['badge'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <?php endif; ?>
+                            <button class="wish" type="button" aria-label="Yêu thích <?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?>">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20s-7-4.4-9.2-8.2C1 8.7 3.2 5 7 5c2 0 3.3 1 5 3 1.7-2 3-3 5-3 3.8 0 6 3.7 4.2 6.8C19 15.6 12 20 12 20z"/></svg>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-cat"><?= htmlspecialchars($product['category'], ENT_QUOTES, 'UTF-8') ?></div>
+                            <h3><?= htmlspecialchars($product['name'], ENT_QUOTES, 'UTF-8') ?></h3>
+                            <p class="desc"><?= htmlspecialchars($product['desc'], ENT_QUOTES, 'UTF-8') ?></p>
+                            <div class="price"><?= htmlspecialchars($product['price_text'], ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="actions">
+                                <button class="btn btn-ghost js-view" type="button">Xem sản phẩm</button>
+                                <button class="btn btn-primary js-add" type="button">Thêm vào giỏ</button>
+                            </div>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+                <div class="empty" id="emptyState">Không tìm thấy sản phẩm phù hợp.</div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand" id="about">
+                <div class="brand-the">the</div>
+                <div class="brand">cocoon</div>
+                <div class="brand-country">VIETNAM</div>
+                <p>Thương hiệu mỹ phẩm thuần chay Việt Nam</p>
+            </div>
+            <div>
+                <h4>Sản phẩm</h4>
+                <ul>
+                    <li><a href="#products">Chăm sóc da</a></li>
+                    <li><a href="#products">Chăm sóc tóc</a></li>
+                    <li><a href="#products">Chăm sóc cơ thể</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Hỗ trợ</h4>
+                <ul>
+                    <li><a href="#footer">Liên hệ</a></li>
+                    <li><a href="#footer">Chính sách giao hàng</a></li>
+                    <li><a href="#footer">Chính sách đổi trả</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Theo dõi</h4>
+                <div class="socials">
+                    <button type="button">Facebook</button><br>
+                    <button type="button">Instagram</button><br>
+                    <button type="button">TikTok</button>
+                </div>
+            </div>
+        </div>
+        <div class="copy">© 2026 Cocoon Vietnam. All rights reserved.</div>
+    </footer>
+
+    <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <button class="close-x" type="button" id="closeModal" aria-label="Đóng">×</button>
+            <div class="modal-media">
+                <img id="modalImage" alt="">
+            </div>
+            <div class="modal-body">
+                <div class="cat" id="modalCat"></div>
+                <h2 id="modalTitle"></h2>
+                <div class="price" id="modalPrice"></div>
+                <p id="modalDesc" style="color:#666;margin-bottom:20px;"></p>
+                <button class="btn btn-primary" type="button" id="modalAdd" style="width:100%;padding:12px;">Thêm vào giỏ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status">Đã thêm sản phẩm vào giỏ hàng!</div>
+
+    <script src="assets/js/cart-api.js"></script>
+    <script src="js/product-search.js"></script>
+    <script>
+        const productsData = <?= json_encode(array_map(function ($p) {
+            return [
+                'id' => $p['id'],
+                'name' => $p['name'],
+                'category' => $p['category'],
+                'price' => $p['price'],
+                'price_text' => $p['price_text'],
+                'desc' => $p['desc'],
+                'image' => $p['image'],
+            ];
+        }, $products), JSON_UNESCAPED_UNICODE) ?>;
+
+        const grid = document.getElementById('productGrid');
+        const cards = Array.from(document.querySelectorAll('.card'));
+        const emptyState = document.getElementById('emptyState');
+        const resultCount = document.getElementById('resultCount');
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const cartCountEl = document.getElementById('cartCount');
+        const toast = document.getElementById('toast');
+        const overlay = document.getElementById('overlay');
+        const drawer = document.getElementById('mobileDrawer');
+
+
+        let toastTimer = null;
+        let modalProductId = null;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+        async function updateCartCount() {
+            try {
+                const cart = await window.CocoonCart.updateCount(cartCountEl, csrfToken);
+                return cart;
+            } catch (error) {
+                console.error('Không thể tải số lượng giỏ hàng:', error);
+                cartCountEl.textContent = '0';
+                return null;
+            }
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+
+        async function addToCart(productId) {
+            if (!productId) return;
+            try {
+                const response = await window.CocoonCart.mutate('add', {
+                    product_id: Number(productId), quantity: 1
+                }, csrfToken);
+                cartCountEl.textContent = String(response.data.total_items || 0);
+                showToast(response.message || 'Đã thêm sản phẩm vào giỏ hàng!');
+            } catch (error) {
+                showToast(error.message || 'Không thể thêm sản phẩm. Vui lòng thử lại.');
+            }
+        }
+
+        function applyFilters() {
+    const visible = [...cards];
+
+            const sort = sortSelect.value;
+            visible.sort((a, b) => {
+                const pa = Number(a.dataset.price);
+                const pb = Number(b.dataset.price);
+                const na = a.dataset.name.localeCompare(b.dataset.name, 'vi');
+                if (sort === 'price-asc') return pa - pb;
+                if (sort === 'price-desc') return pb - pa;
+                if (sort === 'name-asc') return na;
+                if (sort === 'name-desc') return -na;
+                return Number(a.dataset.index) - Number(b.dataset.index);
+            });
+
+            visible.forEach((card) => grid.appendChild(card));
+            grid.appendChild(emptyState);
+            emptyState.classList.toggle('show', visible.length === 0);
+            resultCount.textContent = 'Hiển thị ' + visible.length + ' sản phẩm';
+        }
+
+        function openModal(id) {
+            const item = productsData.find((p) => Number(p.id) === Number(id));
+            if (!item) return;
+            modalProductId = item.id;
+            document.getElementById('modalImage').src = item.image;
+            document.getElementById('modalImage').alt = item.name;
+            document.getElementById('modalCat').textContent = item.category;
+            document.getElementById('modalTitle').textContent = item.name;
+            document.getElementById('modalPrice').textContent = item.price_text;
+            document.getElementById('modalDesc').textContent = item.desc;
+            overlay.classList.add('show');
+        }
+
+        function closeModal() {
+            overlay.classList.remove('show');
+            modalProductId = null;
+        }
+
+
+document.querySelectorAll('.cat-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        const params = new URLSearchParams();
+        params.set('category', btn.dataset.cat);
+
+        const keyword = searchInput.value.trim();
+        if (keyword) params.set('search', keyword);
+
+        window.location.href = 'products.php?' + params.toString();
+    });
+});
+
+
+
+
+        sortSelect.addEventListener('change', applyFilters);
+
+        grid.addEventListener('click', (e) => {
+            const card = e.target.closest('.card');
+            if (!card) return;
+            if (e.target.closest('.wish')) {
+                e.target.closest('.wish').classList.toggle('active');
+                return;
+            }
+            if (e.target.closest('.js-add')) {
+                addToCart(card.dataset.id);
+                return;
+            }
+            if (e.target.closest('.js-view')) {
+                openModal(card.dataset.id);
+            }
+        });
+
+        document.getElementById('modalAdd').addEventListener('click', () => addToCart(modalProductId));
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeModal();
+        });
+        const menuToggle = document.getElementById('openMenu');
+
+        function closeMenu() {
+            drawer.classList.remove('show');
+            menuToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeMenu();
+            }
+        });
+
+        menuToggle.addEventListener('click', () => {
+            drawer.classList.add('show');
+            menuToggle.setAttribute('aria-expanded', 'true');
+        });
+        document.getElementById('closeMenu').addEventListener('click', closeMenu);
+        drawer.addEventListener('click', (e) => {
+            if (e.target === drawer || e.target.closest('a')) closeMenu();
+        });
+        document.getElementById('focusSearch').addEventListener('click', () => {
+            searchInput.focus();
+            searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        updateCartCount();
+        applyFilters();
+    </script>
+</body>
+</html>
