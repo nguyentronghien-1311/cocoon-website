@@ -1,6 +1,7 @@
 <?php
 /** Secure checkout endpoint. Creates an order and its items atomically. */
 require_once __DIR__ . '/../cart/cart_common.php';
+require_once __DIR__ . '/../../includes/coupon_common.php';
 
 function cocoon_order_redirect_error(string $message, int $status = 422, array $input = []): never
 {
@@ -12,6 +13,7 @@ function cocoon_order_redirect_error(string $message, int $status = 422, array $
         'address_id' => (string) ($input['address_id'] ?? ''),
         'payment_method' => (string) ($input['payment_method'] ?? 'cod'),
         'note' => trim((string) ($input['note'] ?? '')),
+        'coupon_code' => strtoupper(trim((string) ($input['coupon_code'] ?? ''))),
     ];
     $accept = (string) ($_SERVER['HTTP_ACCEPT'] ?? '');
     if (str_contains($accept, 'application/json') || strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest') {
@@ -65,6 +67,10 @@ if (!in_array($paymentMethod, ['cod', 'banking'], true)) {
 }
 
 $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
+$couponCode = strtoupper(trim((string) ($data['coupon_code'] ?? '')));
+if ($couponCode !== '' && $userId === null) {
+    cocoon_order_redirect_error('Chỉ tài khoản đã đăng nhập mới có thể áp dụng mã giảm giá.', 403, $data);
+}
 $customerName = '';
 $customerPhone = '';
 $customerAddress = '';
@@ -143,6 +149,10 @@ try {
         ];
     }
 
+    if ($couponCode !== '') {
+        $totalAmount -= cocoon_coupon_discount($couponCode, $totalAmount);
+    }
+
     $orderInsert = $pdo->prepare(
         "INSERT INTO orders (customer_name, customer_phone, customer_address, total_amount, status, payment_method, user_id, note)
          VALUES (:name, :phone, :address, :total, 'Chờ duyệt', :payment, :user_id, :note)"
@@ -188,6 +198,11 @@ try {
     // Remove cart only after a successful commit. Rotate the form token to block reposts.
     $_SESSION['cart'] = [];
     $_SESSION['last_order_id'] = $orderId;
+    if ($couponCode !== '') {
+        $_SESSION['last_order_coupon'] = ['order_id' => $orderId, 'code' => $couponCode];
+    } else {
+        unset($_SESSION['last_order_coupon']);
+    }
     $_SESSION['checkout_token'] = bin2hex(random_bytes(32));
     unset($_SESSION['checkout_old_input'], $_SESSION['checkout_flash_error']);
 

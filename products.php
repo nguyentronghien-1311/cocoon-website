@@ -434,64 +434,113 @@ $products = get_catalog_products($conn, $categoryId, $search);
         .empty.show { display: block; }
 
         /* Footer */
-        footer {
-            background: #F3EEE6;
-            border-top: 1px solid var(--line);
-            padding: 48px 0 0;
-        }
-        .footer-grid {
+        .footer-layout {
             display: grid;
-            grid-template-columns: 1.4fr 1fr 1fr 1fr;
-            gap: 32px;
-            padding-bottom: 36px;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            background: #1f1c18;
+            color: #fff;
         }
-        .footer-brand { text-align: center; }
-        .footer-brand .brand {
-            font-family: "Cormorant Garamond", Georgia, serif;
-            font-style: italic;
-            font-size: 28px;
-        }
-        .footer-brand .brand-the {
-            display: block;
-            margin-bottom: -4px;
-            color: #3E3228;
+        .footer-art { min-height: 360px; overflow: hidden; background: #8d6e24; }
+        .footer-art img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+        .footer {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 40px clamp(24px, 4vw, 64px);
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            align-content: center;
+            gap: 30px;
             font-size: 13px;
-            line-height: 1;
         }
-        .footer-brand .brand-country {
-            display: block;
-            margin-top: 4px;
-            color: var(--brown);
-            font-family: Inter, Arial, sans-serif;
-            font-size: 8px;
-            font-style: normal;
-            letter-spacing: 0.38em;
-        }
-        .footer-brand p { color: var(--muted); margin: 10px auto 0; max-width: 260px; font-size: 14px; }
-        footer h4 {
+        .footer h5 {
+            color: var(--turmeric);
             font-size: 13px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
+            font-weight: 600;
+            padding-bottom: 6px;
             margin-bottom: 14px;
-            color: #3E3228;
+            position: relative;
         }
-        footer ul { list-style: none; display: grid; gap: 8px; }
-        footer li, .socials button {
+        .footer h5::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 80px;
+            height: 1px;
+            background: var(--turmeric);
+        }
+        .footer .blue { color: #e9dece; line-height: 1.8; }
+        .footer li { list-style: none; margin-bottom: 10px; }
+        .footer a { transition: .2s; }
+        .footer a:hover { color: var(--turmeric); }
+        .soc { display: flex; gap: 10px; margin-top: 12px; }
+        .soc a {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-style: normal;
+            font-size: 10px;
+            font-weight: 700;
+            transition: transform .2s;
+        }
+        .soc a:hover { color: #fff; transform: translateY(-2px); }
+        .verified {
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #8D6E63;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .contact-widget { position: fixed; right: 24px; bottom: 24px; z-index: 120; }
+        .contact-widget summary {
+            list-style: none;
+            display: flex;
+            min-width: 96px;
+            min-height: 50px;
+            align-items: center;
+            justify-content: center;
+            padding: 0 22px;
+            border-radius: 999px;
+            background: #fffaf0;
+            color: #C5A25D;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .2);
             font-size: 14px;
-            color: var(--muted);
-            background: none;
-            border: 0;
-            padding: 0;
-            text-align: left;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .2s, background .2s;
         }
-        footer a:hover, .socials button:hover { color: var(--green); }
-        .copy {
-            border-top: 1px solid var(--line);
-            padding: 16px 0;
-            font-size: 12px;
-            color: var(--muted);
-            text-align: center;
+        .contact-widget summary::-webkit-details-marker { display: none; }
+        .contact-widget summary:hover { transform: translateY(-2px); background: #fff; }
+        .contact-options {
+            position: absolute;
+            right: 0;
+            bottom: calc(100% + 10px);
+            display: grid;
+            min-width: 160px;
+            gap: 6px;
+            padding: 8px;
+            background: #fff;
+            border: 1px solid #eee5d9;
+            border-radius: 12px;
+            box-shadow: 0 6px 22px rgba(0, 0, 0, .16);
         }
+        .contact-options a {
+            padding: 10px 12px;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background .2s;
+        }
+        .contact-options a:hover { background: var(--bg-soft); color: #8D6E63; }
 
         /* Toast */
         .toast {
@@ -595,7 +644,6 @@ $products = get_catalog_products($conn, $categoryId, $search);
             .header-inner { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
             .nav { display: none; }
             .icon-label { display: none; }
-            .footer-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 768px) {
             .grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
@@ -608,9 +656,16 @@ $products = get_catalog_products($conn, $categoryId, $search);
         @media (max-width: 480px) {
             .container { width: calc(100% - 24px); }
             .actions { grid-template-columns: 1fr; }
-            .footer-grid { grid-template-columns: 1fr; }
             .page-head { padding-top: 24px; }
             .card-body h3 { font-size: 14px; }
+        }
+        @media (max-width: 992px) {
+            .footer { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 600px) {
+            .footer-layout { grid-template-columns: 1fr; }
+            .footer-art { min-height: clamp(220px, 55vw, 340px); }
+            .footer { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -768,41 +823,44 @@ $products = get_catalog_products($conn, $categoryId, $search);
         </section>
     </main>
 
-    <footer id="footer">
-        <div class="container footer-grid">
-            <div class="footer-brand" id="about">
-                <div class="brand-the">the</div>
-                <div class="brand">cocoon</div>
-                <div class="brand-country">VIETNAM</div>
-                <p>Thương hiệu mỹ phẩm thuần chay Việt Nam</p>
+    <footer class="footer-layout" id="footer">
+        <div class="footer-art">
+            <img src="assets/images/cocoon.jpg" alt="Hình ảnh thương hiệu Cocoon Vietnam" loading="lazy">
+        </div>
+        <div class="container footer">
+            <div>
+                <h5>ABOUT US</h5>
+                <p class="blue">COCOON VIETNAM - CÔNG TY CỔ PHẦN Y&amp;B. Địa chỉ: 14D1, KP 1A, Quốc lộ 1A, P. Tân Thới Hiệp, TP. Hồ Chí Minh. Hotline: 1900 9300.</p>
+                <p style="margin-top:14px"><a href="brand-story.php">Câu chuyện thương hiệu</a></p>
+                <span class="verified">✔ ĐÃ THÔNG BÁO · BỘ CÔNG THƯƠNG</span>
             </div>
             <div>
-                <h4>Sản phẩm</h4>
+                <h5>CHÍNH SÁCH</h5>
                 <ul>
-                    <li><a href="#products">Chăm sóc da</a></li>
-                    <li><a href="#products">Chăm sóc tóc</a></li>
-                    <li><a href="#products">Chăm sóc cơ thể</a></li>
+                    <li><a href="#">Hỏi đáp</a></li><li><a href="#">Chính sách bán hàng</a></li>
+                    <li><a href="#">Điều khoản bảo mật</a></li><li><a href="#">Điều kiện chung</a></li>
+                    <li><a href="#">Chính sách giải quyết khiếu nại</a></li>
                 </ul>
             </div>
             <div>
-                <h4>Hỗ trợ</h4>
-                <ul>
-                    <li><a href="#footer">Liên hệ</a></li>
-                    <li><a href="#footer">Chính sách giao hàng</a></li>
-                    <li><a href="#footer">Chính sách đổi trả</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>Theo dõi</h4>
-                <div class="socials">
-                    <button type="button">Facebook</button><br>
-                    <button type="button">Instagram</button><br>
-                    <button type="button">TikTok</button>
+                <h5>FANPAGE</h5>
+                <p>Cocoon Vietnam</p>
+                <div class="soc">
+                    <a href="https://www.facebook.com/CocoonVietnamOfficial" target="_blank" rel="noopener noreferrer" aria-label="Facebook Cocoon Vietnam" style="background:#1877f2">f</a>
+                    <a href="https://www.instagram.com/cocoon.vietnam/" target="_blank" rel="noopener noreferrer" aria-label="Instagram Cocoon Vietnam" style="background:#e1306c">IG</a>
+                    <a href="https://www.youtube.com/channel/UChaXgZ8kSpQDFgfm2X-kwTg" target="_blank" rel="noopener noreferrer" aria-label="Youtube Cocoon Vietnam" style="background:#c4302b">▶</a>
                 </div>
             </div>
         </div>
-        <div class="copy">© 2026 Cocoon Vietnam. All rights reserved.</div>
     </footer>
+
+    <details class="contact-widget">
+        <summary>Liên hệ</summary>
+        <nav class="contact-options" aria-label="Phương thức liên hệ">
+            <a href="https://zalo.me/1351328921239799141" target="_blank" rel="noopener noreferrer">Zalo</a>
+            <a href="https://m.me/CocoonVietnamOfficial" target="_blank" rel="noopener noreferrer">Messenger</a>
+        </nav>
+    </details>
 
     <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal">

@@ -13,7 +13,7 @@ unset($_SESSION['checkout_flash_error']);
 $oldInput = is_array($_SESSION['checkout_old_input'] ?? null) ? $_SESSION['checkout_old_input'] : [];
 unset($_SESSION['checkout_old_input']);
 $note = trim((string) ($oldInput['note'] ?? ''));
-$couponCode = strtoupper(trim((string) ($oldInput['coupon_code'] ?? '')));
+$couponCode = $isLoggedIn ? strtoupper(trim((string) ($oldInput['coupon_code'] ?? ''))) : '';
 $customerName = trim((string) ($oldInput['customer_name'] ?? ''));
 $customerPhone = trim((string) ($oldInput['customer_phone'] ?? ''));
 $customerAddress = trim((string) ($oldInput['customer_address'] ?? ''));
@@ -303,6 +303,16 @@ try {
             border-color: var(--primary);
             background-color: #f6fbf6;
         }
+        .bank-qr {
+            display: block;
+            width: min(100%, 280px);
+            height: auto;
+            margin: 12px auto 4px;
+            border: 1px solid #e6e0d6;
+            border-radius: 8px;
+        }
+        .bank-qr[hidden] { display: none; }
+        .coupon-note { margin: 10px 0; color: #665a50; font-size: 13px; }
         /* Danh sách tóm tắt hàng bên phải */
         .item-list {
             list-style: none;
@@ -423,7 +433,9 @@ try {
                 <form action="backend/orders/orders_create.php" method="post" id="checkoutForm">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="checkout_token" value="<?= htmlspecialchars($_SESSION['checkout_token'], ENT_QUOTES, 'UTF-8') ?>">
-                    <input type="hidden" name="coupon_code" id="couponCode" value="<?= htmlspecialchars($couponCode, ENT_QUOTES, 'UTF-8') ?>">
+                    <?php if ($isLoggedIn): ?>
+                        <input type="hidden" name="coupon_code" id="couponCode" value="<?= htmlspecialchars($couponCode, ENT_QUOTES, 'UTF-8') ?>">
+                    <?php endif; ?>
                     <?php if ($isLoggedIn): ?>
                     <div class="form-group">
                         <label for="address_id">Địa chỉ giao hàng</label>
@@ -458,16 +470,21 @@ try {
                         <textarea id="note" name="note" rows="2" maxlength="255" placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao..."><?= htmlspecialchars($note, ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
 
-                    <div class="coupon-box">
-                        <label for="couponInput">Mã giảm giá</label>
-                        <div class="coupon-entry">
-                            <input type="text" id="couponInput" maxlength="32" autocomplete="off" placeholder="Nhập mã giảm giá" value="<?= htmlspecialchars($couponCode, ENT_QUOTES, 'UTF-8') ?>">
-                            <button type="button" id="applyCoupon">Áp dụng</button>
-                            <button type="button" id="removeCoupon" <?= $couponCode === '' ? 'hidden' : '' ?>>Gỡ mã</button>
+                    <?php if ($isLoggedIn): ?>
+                        <div class="coupon-box">
+                            <label for="couponInput">Mã giảm giá</label>
+                            <div class="coupon-entry">
+                                <input type="text" id="couponInput" maxlength="32" autocomplete="off" placeholder="Nhập mã giảm giá" value="<?= htmlspecialchars($couponCode, ENT_QUOTES, 'UTF-8') ?>">
+                                <button type="button" id="applyCoupon">Áp dụng</button>
+                                <button type="button" id="removeCoupon" <?= $couponCode === '' ? 'hidden' : '' ?>>Gỡ mã</button>
+                            </div>
+                            <p class="coupon-message" id="couponMessage" role="status" aria-live="polite"></p>
+                            <a class="manage-address" href="saved-coupons.php">Xem mã giảm giá đã lưu</a>
+                            <p class="coupon-note">Chỉ tài khoản đã đăng nhập mới có thể áp dụng mã giảm giá.</p>
                         </div>
-                        <p class="coupon-message" id="couponMessage" role="status" aria-live="polite"></p>
-                        <a class="manage-address" href="saved-coupons.php">Xem mã giảm giá đã lưu</a>
-                    </div>
+                    <?php else: ?>
+                        <p class="coupon-note">Chỉ tài khoản đã đăng nhập mới có thể áp dụng mã giảm giá. <a href="login.php">Đăng nhập</a> hoặc <a href="register.php">đăng ký</a> để sử dụng.</p>
+                    <?php endif; ?>
 
                     <h2>Phương Thức Thanh Toán</h2>
                     <div class="payment-methods">
@@ -479,6 +496,7 @@ try {
                             <input type="radio" name="payment_method" value="banking" <?= (($oldInput['payment_method'] ?? '') === 'banking') ? 'checked' : '' ?>>
                             <span><strong>Chuyển khoản ngân hàng qua mã QR</strong></span>
                         </label>
+                        <img class="bank-qr" src="assets/images/viettin_qr_only.jpg" alt="Mã QR thanh toán chuyển khoản VietinBank" loading="lazy" <?= (($oldInput['payment_method'] ?? 'cod') !== 'banking') ? 'hidden' : '' ?>>
                     </div>
 
                     <button type="submit" class="btn-order" <?= ($cartEmpty || ($isLoggedIn && !$addresses)) ? 'disabled' : '' ?>>XÁC NHẬN ĐẶT HÀNG</button>
@@ -522,6 +540,16 @@ try {
     </div>
 
     <script>
+        const bankQr = document.querySelector('.bank-qr');
+        const paymentMethodInputs = document.querySelectorAll('input[name="payment_method"]');
+        function updateBankQrVisibility() {
+            if (!bankQr) return;
+            const bankingSelected = document.querySelector('input[name="payment_method"]:checked')?.value === 'banking';
+            bankQr.hidden = !bankingSelected;
+        }
+        paymentMethodInputs.forEach(input => input.addEventListener('change', updateBankQrVisibility));
+        updateBankQrVisibility();
+
         const couponInput = document.getElementById('couponInput');
         if (couponInput) {
             const coupons = <?= json_encode(cocoon_coupon_catalog(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
